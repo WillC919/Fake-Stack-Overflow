@@ -3,17 +3,18 @@
 // This is where you should start writing server-side code for this application.
 const express = require('express');
 const app = express();
-var cors = require('cors')
+var cors = require('cors');
 const port = 8000;
-
+const session = require("express-session")
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
+  console.log('Fake StackOverflow is now running');
 })
 
-let Tag = require('./models/tags')
-let Answer = require('./models/answers')
-let Question = require('./models/questions')
+let Tag = require('./models/tags');
+let Answer = require('./models/answers');
+let Question = require('./models/questions');
+let User = require('./models/users');
 
 let mongoose = require('mongoose');
 let mongoDB = "mongodb://127.0.0.1:27017/fake_so";
@@ -24,16 +25,34 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.on('connected', function() { console.log('Connected to database'); });
 
 app.use(cors());
-app.use(express.json())
+app.use(express.json());
 
-process.on('SIGINT', () => {
-  if (db) {
-    db.close().then((result) => console.log('DB connection closed')).catch((err) => console.log(err));
-  }
-  console.log('Server closed. Database instance disconnected.');
-  //Server closed. Database instance disconnected
+app.use(
+  session({
+    // For simplicity the secret is hard-coded. Ideally should be read from environment variables.
+    secret: "secret to sign session cookie",
+    cookie: {},
+    resave: false,
+    saveUninitialized: false
+  })
+)
+
+
+
+
+
+app.get('/users', async function (req, res) {
+  const users = await User.find().lean();
+  res.send(users);
 });
-
+app.get('/checkFor/:email', async function (req, res) {
+  try {
+    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
+    const result = await User.findOne({email: req.params.email.substring(1)}).lean();
+    if (result) res.send(true);
+    else res.send(false);
+  } catch (error) { console.log('Was unable to find the email'); }
+});
 
 app.get('/questions', async function (req, res) {
   const questions = await Question.find().sort({ask_date_time:-1});
@@ -72,6 +91,10 @@ app.get('/tag/:tid', async function (req, res) {
     res.send(questions);
   } catch (error) { console.log('Was unable to find the tag'); }
 });
+
+
+
+
 
 app.post('/find', async (req, res) => { 
   let keywords = await req.body.wordKeys;
@@ -142,6 +165,10 @@ app.post('/postAnswer', async function (req, res) {
   } catch (error) { console.log('Was unable to find the Question'); }
 });
 
+
+
+
+
 app.get('/sortActive', async function (req, res) {
   const result = await Question.find().populate('answers').sort({'answers.ans_date_time': -1}).exec();
   result.sort((a, b) => {
@@ -158,3 +185,16 @@ app.get('/sortUnanswered', async function (req, res) {
     res.send(questions)
   } catch(error) {console.log('Unable to sort by unanswered');}
 })
+
+
+
+
+
+// close mongoose connection
+process.on('SIGINT', () => {
+  if (db) {
+    db.close().then((result) => console.log('DB connection closed')).catch((err) => console.log(err));
+  }
+  console.log('Server closed. Database instance disconnected.');
+  //Server closed. Database instance disconnected
+});
