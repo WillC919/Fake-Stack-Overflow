@@ -1,0 +1,52 @@
+#numOfTags {
+    font-size: 2rem; 
+    font-weight: bold; 
+    padding: 0px 50px;
+}
+#tagsHeader {
+    font-size: 2rem; 
+    font-weight: bold; 
+    text-align: center; 
+    margin-right: 10%;
+}
+
+#askQuestion{
+    background-color: rgb(0, 103, 172);
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.3rem;
+    margin-left: 30%;
+    float: left;
+    right: 0;
+    border-radius: 4px;
+}
+#askQuestion:hover{
+    background-color: rgb(0, 82, 137);
+}
+#askQuestion:active{
+    background-color: rgb(76, 102, 119);
+}
+
+.tag-blocks{
+    width: 13%;
+    min-height: 50px;
+    display: inline-block;
+    border: 2px dashed;
+    overflow: auto;
+    text-align: center;
+    padding: 15px 5px 5px 5px; 
+    margin: 15px 9%;
+    word-break: break-all;
+}
+.tag-blocks a{
+    color: rgb(0, 137, 234);
+    font-size: 1.05rem;
+    text-align: center;
+    margin: auto;
+    text-decoration: underline;
+}
+.tag-blocks p{
+    font-size: 1.05rem;
+    text-align: center;
+    margin: auto;
+}
