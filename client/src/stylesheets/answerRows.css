@@ -1,0 +1,10 @@
+.answerRow td{
+    padding: 1rem;
+    border-bottom: 2px dotted;
+    width: 75%;
+}
+
+.answerRow p{
+    color: green;
+}
+

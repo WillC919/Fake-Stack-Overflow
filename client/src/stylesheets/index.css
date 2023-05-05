@@ -1,3 +1,6 @@
-body {
+/* Add CSS */
+body{
   margin: 0;
+  font-family: Helvetica;
+  background-color: rgb(241, 241, 241);
 }
