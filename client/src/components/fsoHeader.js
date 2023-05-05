@@ -1,7 +1,7 @@
 import '../stylesheets/fsoHeader.css';
 import axios from 'axios';
 
-export default function header({setQuestsData, setPageIndex}) {
+export default function Header({setQuestsData, setPageIndex}) {
     return (
         <div id="header">
             <div id="banner">
@@ -30,7 +30,7 @@ function search(event, setQuestsData, setPageIndex) {
         const keywords = keys.filter((str) => str !== '' && str.charAt(0) !== '[' && str.charAt(str.length-1) !== ']');
         const keytags = keys.filter((str) => str.charAt(0) === '[' && str.charAt(str.length-1) === ']');
 
-        axios.post('http://localhost:8000/find', { wordKeys: keywords, tagKeys: keytags }).then( res => {
+        axios.post('http://localhost:8000/find', { wordKeys: keywords, tagKeys: keytags }).then(res => {
             setQuestsData(res.data);
             setPageIndex(5);
         });
