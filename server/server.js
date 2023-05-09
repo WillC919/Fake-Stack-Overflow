@@ -39,13 +39,11 @@ app.use(
 
 
 
-
-
 app.get('/users', async function (req, res) {
   const users = await User.find().lean();
   res.send(users);
 });
-app.get('/checkFor/:email', async function (req, res) {
+app.get('/user/:email', async function (req, res) {
   try {
     // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
     const result = await User.findOne({email: req.params.email.substring(1)}).lean();
@@ -125,6 +123,10 @@ app.post('/find', async (req, res) => {
   res.send(questData);
 });
 
+
+
+
+
 app.post('/postQuestion', async function (req, res) {
   let tags = [];
   
@@ -165,6 +167,17 @@ app.post('/postAnswer', async function (req, res) {
   } catch (error) { console.log('Was unable to find the Question'); }
 });
 
+app.post('/addUser', async function (req, res) {
+  let userDetail = {
+    email: req.body.email,
+    user: req.body.user,
+    password: req.body.password
+  };
+
+  let acc = new User(userDetail);
+  ans = await acc.save();
+  res.send('Account Created');
+});
 
 
 

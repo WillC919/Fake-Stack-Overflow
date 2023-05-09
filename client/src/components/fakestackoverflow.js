@@ -130,7 +130,7 @@ async function handleClick(event, displayIndex, setDisplayIndex) {
           valid = false;
           document.getElementById("signUpemailError").innerText = txtErrMsg; 
         } else {
-          const response = await axios.get(`http://localhost:8000/checkFor/:${email}`);
+          const response = await axios.get(`http://localhost:8000/user/:${email}`);
           valid = !(response.data);
           if (!valid) document.getElementById("signUpemailError").innerText = 'This email is already taken!!';
           else document.getElementById("signUpemailError").innerText = '';
@@ -156,15 +156,14 @@ async function handleClick(event, displayIndex, setDisplayIndex) {
     }
 
     if (valid) {
-        axios.post('http://localhost:8000/addUser', {
-            email: email,
-            user: username,
-            password: passwordA,
-        }).then(res => {
-            console.log(res);
-            setDisplayIndex(3);
-        })
-        .catch(err => { console.log(err); })
+      axios.post('http://localhost:8000/addUser', {
+          email: email,
+          user: username,
+          password: passwordA,
+      }).then(res => {
+          console.log(res);
+          setDisplayIndex(3);
+      }).catch(err => { console.log(err); })
     }
   }
 }
