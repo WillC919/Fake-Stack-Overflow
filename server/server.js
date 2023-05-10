@@ -26,7 +26,6 @@ db.on('connected', function() { console.log('Connected to database'); });
 
 app.use(cors());
 app.use(express.json());
-
 app.use(
   session({
     // For simplicity the secret is hard-coded. Ideally should be read from environment variables.
@@ -37,7 +36,18 @@ app.use(
   })
 )
 
-
+app.get('/', async function (req, res) {
+  console.log(req.session);
+  if (req.session.userId) {
+    try {
+      const result = await User.findById(req.session.userId).lean();
+      res.send(result);
+    } catch (error) {
+      console.log('Not Found');
+      res.send([]);
+    }
+  } else res.send([]);
+});
 
 app.get('/users', async function (req, res) {
   const users = await User.find().lean();
@@ -124,8 +134,34 @@ app.post('/find', async (req, res) => {
 });
 
 
+app.post('/login', async function (req, res) {
+  try {
+    const result = await User.findOne({email: req.body.email, password: req.body.password});
+    req.session.userId = result._id;
+    res.send(`<h1>Thanks for logging in ${req.session.userId}</h1>`);
+    //res.redirect("/");
+  } catch (error) {
+    console.log('Fail');
+    res.send(false);
+  }
+});
 
+app.post('/addUser', async function (req, res) {
+  let userDetail = {
+    email: req.body.email,
+    user: req.body.user,
+    password: req.body.password
+  };
+  
+  let acc = new User(userDetail);
+  acc = await acc.save();
+  console.log(acc._id);
+  req.session.userId = acc._id;
+});
 
+app.post("/logout", (req, res) => {
+  req.session.destroy(err => { res.redirect("/") })
+})
 
 app.post('/postQuestion', async function (req, res) {
   let tags = [];
@@ -167,17 +203,6 @@ app.post('/postAnswer', async function (req, res) {
   } catch (error) { console.log('Was unable to find the Question'); }
 });
 
-app.post('/addUser', async function (req, res) {
-  let userDetail = {
-    email: req.body.email,
-    user: req.body.user,
-    password: req.body.password
-  };
-
-  let acc = new User(userDetail);
-  ans = await acc.save();
-  res.send('Account Created');
-});
 
 
 
