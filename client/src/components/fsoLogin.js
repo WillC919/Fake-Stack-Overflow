@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useState } from 'react';
 import '../stylesheets/fsoLogin.css'
-//onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)
+//onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)}
 //The Welcome / Login Page
-export default function LoginPage({setUserData}) {
+export default function LoginPage() {
     const [displayIndex, setDisplayIndex] = useState(0);
 
     return (<>
@@ -22,7 +22,7 @@ export default function LoginPage({setUserData}) {
         <div className='login'>
             <h1>Log in Page</h1>
             <hr/>
-            <form id='login' name="login" action="http://localhost:8000/login" method="post"> 
+            <form id='login' name="login"  action="http://localhost:8000/login" method="post" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
             <div className="row">
                 <div className="logUser"><label htmlFor="loginEmail">Username</label></div>
                 <div className="logResp">
@@ -51,7 +51,7 @@ export default function LoginPage({setUserData}) {
         <div className='login'>
             <h1>Sign Up Page</h1>
             <hr/>
-            <form id='signup' name="signup" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)}> 
+            <form id='signup' name="signup" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpUsername">Username</label></div>
                 <div className="logResp">
@@ -94,19 +94,21 @@ export default function LoginPage({setUserData}) {
     </>); 
 }
 
-async function handleClick(event, displayIndex, setDisplayIndex, setUserData) {
+async function handleClick(event, displayIndex, setDisplayIndex) {
   event.preventDefault();
 
   if (displayIndex === 1) {
     const email = event.target.loginEmail.value;
     const password = event.target.loginPassword.value;
-    const resp = await axios.post('http://localhost:8000/login', { email: email, password: password });
-    console.log(resp);
-
-    if (!resp) document.getElementById("signInError").innerText = ">> Email or password is incorrect!!";
-    else document.getElementById("signInError").innerText = "";
-
-    const result = await axios.get('http://localhost:8000/').then(res => { console.log(res.data); setUserData(res.data); });
+    const resp = await axios.post('http://localhost:8000/verify', { email: email, password: password });
+    console.log(resp.data);
+    
+    if (resp.data) { 
+        document.getElementById("signInError").innerText = ""; 
+        event.target.submit();
+    } else {
+        document.getElementById("signInError").innerText = ">> Email or password is incorrect!!"; 
+    }
   } else {
     const username = event.target.signUpUsername.value;
     const email = event.target.signUpEmail.value.toLowerCase();

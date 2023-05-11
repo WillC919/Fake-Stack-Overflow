@@ -48,7 +48,7 @@ app.use(
 app.get('/cookie', async function (req, res) {
   if (req.session.isAuthenticated) {
     try {
-      const result = await User.findById(req.session.userId).lean();
+      const result = await User.findOne({email: req.session.userId}).lean();
       res.send(result);
     } catch (error) {
       console.log('Not Found');
@@ -141,16 +141,25 @@ app.post('/find', async (req, res) => {
   res.send(questData);
 });
 
+app.post('/verify', async function (req, res) {
+  try {
+    const result = await User.findOne({email: req.body.email, password: req.body.password});
+    if (result) res.send(true);
+    else res.send(false);
+  } catch (error) {
+    res.send(false);
+  }
+});
 
 app.post('/login', async function (req, res) {
   try {
-    const result = await User.findOne({email: req.body.loginEmail, password: req.body.loginPassword});
-    req.session.userId = result._id;
+    //const result = await User.findOne({email: req.body.loginEmail, password: req.body.loginPassword});
+    req.session.userId = req.body.loginEmail;
     req.session.isAuthenticated = true;
     res.redirect('http://localhost:3000/');
   } catch (error) {
-    console.log('Fail');
-    res.send(false);
+    console.log("Sending False")
+    res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
   }
 });
 
