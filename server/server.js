@@ -51,7 +51,6 @@ app.get('/cookie', async function (req, res) {
       const result = await User.findOne({email: req.session.userId}).lean();
       res.send(result);
     } catch (error) {
-      console.log('Not Found');
       res.send([]);
     }
   } else res.send([]);
@@ -64,7 +63,7 @@ app.get('/users', async function (req, res) {
 app.get('/user/:email', async function (req, res) {
   try {
     // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const result = await User.findOne({email: req.params.email.substring(1)}).lean();
+    const result = await User.findOne({email: req.params.email.toLowerCase().substring(1)}).lean();
     if (result) res.send(true);
     else res.send(false);
   } catch (error) { console.log('Was unable to find the email'); }
@@ -153,8 +152,7 @@ app.post('/verify', async function (req, res) {
 
 app.post('/login', async function (req, res) {
   try {
-    //const result = await User.findOne({email: req.body.loginEmail, password: req.body.loginPassword});
-    req.session.userId = req.body.loginEmail;
+    req.session.userId = (req.body.loginEmail).toLowerCase();
     req.session.isAuthenticated = true;
     res.redirect('http://localhost:3000/');
   } catch (error) {
@@ -164,16 +162,22 @@ app.post('/login', async function (req, res) {
 });
 
 app.post('/addUser', async function (req, res) {
-  let userDetail = {
-    email: req.body.email,
-    user: req.body.user,
-    password: req.body.password
-  };
+  try {
+    let userDetail = {
+      email: (req.body.signUpEmail).toLowerCase(),
+      user: req.body.signUpUsername,
+      password: req.body.signUpPassword
+    };
   
-  let acc = new User(userDetail);
-  acc = await acc.save();
-  console.log(acc._id);
-  req.session.userId = acc._id;
+    let acc = new User(userDetail);
+    await acc.save();
+    req.session.userId = (req.body.signUpEmail).toLowerCase();
+    req.session.isAuthenticated = true;
+    res.redirect('http://localhost:3000/');
+  } catch (error) {
+    console.log("Sending False")
+    res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
+  }
 });
 
 app.post("/logout", (req, res) => {

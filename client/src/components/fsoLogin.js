@@ -8,21 +8,34 @@ export default function LoginPage() {
 
     return (<>
         {(displayIndex === 0) &&
-        <div>
-            <button id="Login" onClick={() => {setDisplayIndex(1)}}>Login</button>
-            <button id="Sign Up" onClick={() => {setDisplayIndex(2)}}>Sign Up</button>
-            <button id="Guest" onClick={() => {
-                //Create Guest Cookie
-                setDisplayIndex(3);
-            }}>Guest</button>
+        <div id="wrapper">
+            <h1 style={{textAlign: "center"}}>Weclome to FakeStackOverflow</h1>
+            <hr/>
+            <div id="container">
+                <div className="infoBox">
+                    <h2>Log into an Account</h2>
+                    <p>Have an account? Log in and start browsing again.</p>
+                    <button id="Login" onClick={() => {setDisplayIndex(1)}}>Login</button>
+                </div>
+                <div className="infoBox">
+                    <h2>Register an Account</h2>
+                    <p>Don't have an account? Sign up with us so you can get notified.</p>
+                    <button id="Sign Up" onClick={() => {setDisplayIndex(2)}}>Sign Up</button>
+                </div>
+                <div className="infoBox">
+                    <h2>Browse as Guest</h2>
+                    <p>Just want to browse around the website. No problem.</p>
+                    <button id="Guest" onClick={() => {setDisplayIndex(3);}}>Guest</button>
+                </div>
+            </div>
         </div> 
         }
 
         { (displayIndex === 1) &&
-        <div className='login'>
+        <div className="login">
             <h1>Log in Page</h1>
             <hr/>
-            <form id='login' name="login"  action="http://localhost:8000/login" method="post" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
+            <form id="login" name="login"  action="http://localhost:8000/login" method="post" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
             <div className="row">
                 <div className="logUser"><label htmlFor="loginEmail">Username</label></div>
                 <div className="logResp">
@@ -55,7 +68,7 @@ export default function LoginPage() {
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpUsername">Username</label></div>
                 <div className="logResp">
-                    <input type="text" id="signUpUsername" name="signUpUsername" placeholder="Username" value="TestSubA" required></input>
+                    <input type="text" id="signUpUsername" name="signUpUsername" placeholder="Username" required></input>
                 </div>
                 <p className="invalidText" id="signUpUsernameError"></p>
             </div>
@@ -63,7 +76,7 @@ export default function LoginPage() {
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpEmail">Email</label></div>
                 <div className="logResp">
-                    <input type="text" id="signUpEmail" name="signUpEmail" placeholder="Email" value="TestSubA@email.dom" required></input>
+                    <input type="text" id="signUpEmail" name="signUpEmail" placeholder="Email" required></input>
                 </div>
                 <p className="invalidText" id="signUpemailError"></p>
             </div>
@@ -71,7 +84,7 @@ export default function LoginPage() {
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpPassword">Password</label></div>
                 <div className="logResp">
-                    <input type="password" id="signUpPassword" name="signUpPassword" placeholder="Password" value="testing123" required></input>
+                    <input type="password" id="signUpPassword" name="signUpPassword" placeholder="Password" required></input>
                 </div>
                 <p className="invalidText" id="signUppasswordErrorA"></p>
             </div>
@@ -79,7 +92,7 @@ export default function LoginPage() {
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpVerPassword">Verify Password</label></div>
                 <div className="logResp">
-                    <input type="password" id="signUpVerPassword" name="signUpVerPassword" placeholder="Password." value="testing123" required></input>
+                    <input type="password" id="signUpVerPassword" name="signUpVerPassword" placeholder="Password" required></input>
                 </div>
                 <p className="invalidText" id="signUppasswordErrorB"></p>
             </div>
@@ -98,7 +111,7 @@ async function handleClick(event, displayIndex, setDisplayIndex) {
   event.preventDefault();
 
   if (displayIndex === 1) {
-    const email = event.target.loginEmail.value;
+    const email = event.target.loginEmail.value.toLowerCase();
     const password = event.target.loginPassword.value;
     const resp = await axios.post('http://localhost:8000/verify', { email: email, password: password });
     console.log(resp.data);
@@ -117,8 +130,8 @@ async function handleClick(event, displayIndex, setDisplayIndex) {
     
     let valid = true;
     if (username.length === 0) {
-      valid = false;
-      document.getElementById("signUpUsernameError").innerText = ">> You need a username!!";
+        valid = false;
+        document.getElementById("signUpUsernameError").innerText = ">> You need a username!!";
     } else if (username.length > 15) {
         valid = false;
         document.getElementById("signUpUsernameError").innerText = ">> Users excceeds 15 character limit!!";
@@ -130,8 +143,8 @@ async function handleClick(event, displayIndex, setDisplayIndex) {
     } else { 
         const txtErrMsg = checkIfValidEmail(email);
         if (txtErrMsg !== "") {
-          valid = false;
-          document.getElementById("signUpemailError").innerText = txtErrMsg; 
+            valid = false;
+            document.getElementById("signUpemailError").innerText = txtErrMsg; 
         } else {
           const response = await axios.get(`http://localhost:8000/user/:${email}`);
           valid = !(response.data);
@@ -157,15 +170,7 @@ async function handleClick(event, displayIndex, setDisplayIndex) {
         document.getElementById("signUppasswordErrorB").innerText = "";
     }
 
-    if (valid) {
-      axios.post('http://localhost:8000/addUser', {
-          email: email,
-          user: username,
-          password: passwordA,
-      }).then(res => {
-        setDisplayIndex(0);
-      }).catch(err => { console.log(err); })
-    }
+    if (valid) { event.target.submit(); }
   }
 }
 
