@@ -6,6 +6,8 @@ const app = express();
 var cors = require('cors');
 const port = 8000;
 const session = require("express-session")
+const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 
 app.listen(port, () => {
   console.log('Fake StackOverflow is now running');
@@ -24,21 +26,27 @@ let db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 db.on('connected', function() { console.log('Connected to database'); });
 
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3000',
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+
 app.use(
   session({
     // For simplicity the secret is hard-coded. Ideally should be read from environment variables.
     secret: "secret to sign session cookie",
-    cookie: {},
+    cookie: { secure: false },
     resave: false,
     saveUninitialized: false
   })
 )
 
-app.get('/', async function (req, res) {
-  console.log(req.session);
-  if (req.session.userId) {
+
+app.get('/cookie', async function (req, res) {
+  if (req.session.isAuthenticated) {
     try {
       const result = await User.findById(req.session.userId).lean();
       res.send(result);
@@ -136,10 +144,10 @@ app.post('/find', async (req, res) => {
 
 app.post('/login', async function (req, res) {
   try {
-    const result = await User.findOne({email: req.body.email, password: req.body.password});
+    const result = await User.findOne({email: req.body.loginEmail, password: req.body.loginPassword});
     req.session.userId = result._id;
-    res.send(`<h1>Thanks for logging in ${req.session.userId}</h1>`);
-    //res.redirect("/");
+    req.session.isAuthenticated = true;
+    res.redirect('http://localhost:3000/');
   } catch (error) {
     console.log('Fail');
     res.send(false);

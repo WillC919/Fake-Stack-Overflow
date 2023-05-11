@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useState } from 'react';
 import '../stylesheets/fsoLogin.css'
-
+//onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)
 //The Welcome / Login Page
-export default function LoginPage() {
+export default function LoginPage({setUserData}) {
     const [displayIndex, setDisplayIndex] = useState(0);
 
     return (<>
@@ -22,7 +22,7 @@ export default function LoginPage() {
         <div className='login'>
             <h1>Log in Page</h1>
             <hr/>
-            <form id='login' name="login" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
+            <form id='login' name="login" action="http://localhost:8000/login" method="post"> 
             <div className="row">
                 <div className="logUser"><label htmlFor="loginEmail">Username</label></div>
                 <div className="logResp">
@@ -51,7 +51,7 @@ export default function LoginPage() {
         <div className='login'>
             <h1>Sign Up Page</h1>
             <hr/>
-            <form id='signup' name="signup" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
+            <form id='signup' name="signup" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)}> 
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpUsername">Username</label></div>
                 <div className="logResp">
@@ -94,18 +94,19 @@ export default function LoginPage() {
     </>); 
 }
 
-async function handleClick(event, displayIndex, setDisplayIndex) {
+async function handleClick(event, displayIndex, setDisplayIndex, setUserData) {
   event.preventDefault();
 
   if (displayIndex === 1) {
     const email = event.target.loginEmail.value;
     const password = event.target.loginPassword.value;
-    const resp = axios.post('http://localhost:8000/login', { email: email, password: password });
+    const resp = await axios.post('http://localhost:8000/login', { email: email, password: password });
+    console.log(resp);
 
     if (!resp) document.getElementById("signInError").innerText = ">> Email or password is incorrect!!";
     else document.getElementById("signInError").innerText = "";
-    setDisplayIndex(0);
-    
+
+    const result = await axios.get('http://localhost:8000/').then(res => { console.log(res.data); setUserData(res.data); });
   } else {
     const username = event.target.signUpUsername.value;
     const email = event.target.signUpEmail.value.toLowerCase();
