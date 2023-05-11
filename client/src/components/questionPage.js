@@ -4,8 +4,9 @@ import '../stylesheets/questionPage.css'
 import CreateQuestionRows from './questionRows.js'
 
 
-export default function Questions({pageIndex, setPageIndex, setQuestionId, questHeader, questsData, setQuestsData, tagsData, setTagsData, tagId}) {
+export default function Questions({pageIndex, setPageIndex, setQuestionId, questHeader, questsData, setQuestsData, questIndex, setQuestIndex, tagsData, setTagsData, tagId}) {
     const [sortBy, setSortBy] = useState(0);
+    
     
     function reloadQuestions() {
         axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); });
@@ -27,8 +28,6 @@ export default function Questions({pageIndex, setPageIndex, setQuestionId, quest
     useEffect(() => { 
         if (pageIndex === 0 && sortBy === 0) reloadQuestions(); 
         if (pageIndex === 6) filterByTag(tagId);
-        // if (pageIndex === 5) //do something; //????? what is index 5?
-
     }, []);
     return (
         <div>
@@ -52,7 +51,16 @@ export default function Questions({pageIndex, setPageIndex, setQuestionId, quest
             </table>
 
             <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} setQuestionId={setQuestionId} tagsData={tagsData}/>
+            
+            <div id="viewBtn">
+                <div><button id="prev" classNaonClick={() => changeQuestPageIndex(questIndex, setQuestIndex, -1)}>Prev</button></div>
+                <div><button id="curr">Page {questIndex+1}</button></div>
+                <div><button id="next" onClick={() => changeQuestPageIndex(questIndex, setQuestIndex, 1)}>Next</button></div>
+            </div>
         </div>
     );
 }
 
+async function changeQuestPageIndex(questIndex, setQuestIndex, incrementer) {
+    setQuestIndex(questIndex+incrementer);
+}

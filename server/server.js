@@ -50,10 +50,10 @@ app.get('/cookie', async function (req, res) {
     try {
       const result = await User.findOne({email: req.session.userId}).lean();
       res.send(result);
-    } catch (error) {
-      res.send([]);
-    }
-  } else res.send([]);
+    } catch (error) { res.send([]); }
+  } else if (req.session.userId === 'Guest') {
+    res.send([{email: 'Guest', username: 'Anonymous', password: null, reputation: null}]);
+  } else { res.send([]); }
 });
 
 app.get('/users', async function (req, res) {
@@ -149,18 +149,15 @@ app.post('/verify', async function (req, res) {
     res.send(false);
   }
 });
-
 app.post('/login', async function (req, res) {
   try {
     req.session.userId = (req.body.loginEmail).toLowerCase();
     req.session.isAuthenticated = true;
     res.redirect('http://localhost:3000/');
   } catch (error) {
-    console.log("Sending False")
     res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
   }
 });
-
 app.post('/addUser', async function (req, res) {
   try {
     let userDetail = {
@@ -175,13 +172,20 @@ app.post('/addUser', async function (req, res) {
     req.session.isAuthenticated = true;
     res.redirect('http://localhost:3000/');
   } catch (error) {
-    console.log("Sending False")
     res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
   }
 });
-
+app.post("/guest", (req, res) => {
+  try {
+    req.session.userId = "Guest";
+    req.session.isAuthenticated = false;
+    res.redirect('http://localhost:3000/');
+  } catch (error) {
+    res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
+  }
+})
 app.post("/logout", (req, res) => {
-  req.session.destroy(err => { res.redirect("/") })
+  req.session.destroy(err => { res.redirect("/") });
 })
 
 app.post('/postQuestion', async function (req, res) {

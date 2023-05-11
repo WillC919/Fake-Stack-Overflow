@@ -15,21 +15,22 @@ export default function LoginPage() {
                 <div className="infoBox">
                     <h2>Log into an Account</h2>
                     <p>Have an account? Log in and start browsing again.</p>
-                    <button id="Login" onClick={() => {setDisplayIndex(1)}}>Login</button>
+                    <div className='btn'><button id="Login" onClick={() => {setDisplayIndex(1)}}>Login</button></div>
                 </div>
                 <div className="infoBox">
                     <h2>Register an Account</h2>
                     <p>Don't have an account? Sign up with us so you can get notified.</p>
-                    <button id="Sign Up" onClick={() => {setDisplayIndex(2)}}>Sign Up</button>
+                    <div className='btn'><button id="Sign Up" onClick={() => {setDisplayIndex(2)}}>Sign Up</button></div>
                 </div>
                 <div className="infoBox">
                     <h2>Browse as Guest</h2>
                     <p>Just want to browse around the website. No problem.</p>
-                    <button id="Guest" onClick={() => {setDisplayIndex(3);}}>Guest</button>
+                    <div className='btn'>
+                        <form action="http://localhost:8000/guest" method="post"><button type="Submit" id="Guest">Guest</button></form>
+                    </div>   
                 </div>
             </div>
-        </div> 
-        }
+        </div>}
 
         { (displayIndex === 1) &&
         <div className="login">
@@ -64,7 +65,7 @@ export default function LoginPage() {
         <div className='login'>
             <h1>Sign Up Page</h1>
             <hr/>
-            <form id='signup' name="signup" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
+            <form id='signup' name="signup" action="http://localhost:8000/addUser" method="post" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
             <div className="row">
                 <div className="logUser"><label htmlFor="signUpUsername">Username</label></div>
                 <div className="logResp">
@@ -107,9 +108,8 @@ export default function LoginPage() {
     </>); 
 }
 
-async function handleClick(event, displayIndex, setDisplayIndex) {
+async function handleClick(event, displayIndex) {
   event.preventDefault();
-
   if (displayIndex === 1) {
     const email = event.target.loginEmail.value.toLowerCase();
     const password = event.target.loginPassword.value;
