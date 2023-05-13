@@ -1,18 +1,20 @@
 import '../stylesheets/questionRows.css';
 
-export default function CreateQuestionRows({setPageIndex, questsData, setQuestionId, tagsData}) {
+export default function CreateQuestionRows({setPageIndex, questsData, questIndex, setQuestionId, tagsData}) {
 
     return (
         <table id="questionRows">
             <tbody>
-                {questsData.map((q) => 
+                {questsData.slice(questIndex*5, questIndex*5+5).map((q) => 
                     (<tr key={q._id}>
                         <td>
                             <p>{q.answers.length + ' answers'}</p>
-                            <p>{q.views + ' views'}</p>                
+                            <p>{q.views + ' views'}</p>      
+                            <p>{q.votes + ' votes'}</p>             
                         </td>
                         <td>
                             <button className='links' id={q._id} onClick={()=>{setQid(q._id, setPageIndex, setQuestionId)}}>{q.title}</button>
+                            <p>{q.summary}</p>
                             <div>
                                 {q.tags.map((idTag) => <button key={idTag}>{matchTagIDWithName(idTag, tagsData)}</button>)}
                             </div>
@@ -26,6 +28,8 @@ export default function CreateQuestionRows({setPageIndex, questsData, setQuestio
         </table>
     )
 }
+
+
 function setQid(qid, setPageIndex, setQuestionId){
     setPageIndex(3);
     setQuestionId(qid);

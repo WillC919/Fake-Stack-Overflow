@@ -5,7 +5,8 @@ import axios from 'axios';
 
 export default function FakeStackOverflow() {
   const [userData, setUserData] = useState([]);
-  
+  const [displayIndex, setDisplayIndex] = useState(0);
+
   useEffect(() => {
     fetch('http://localhost:8000/cookie', { credentials: 'include',}).then(response => {
       if (response.ok) { return response.json(); } 
@@ -16,7 +17,10 @@ export default function FakeStackOverflow() {
 
   return (
     <>
-      {(userData.length !== 0) ? <Home userData = {userData}/> : <Login setUserData = {setUserData}/>}
+      {(userData.length !== 0) 
+        ? <Home userData = {userData} setUserData = {setUserData}/> 
+        : <Login displayIndex = {displayIndex} setDisplayIndex = {setDisplayIndex} setUserData = {setUserData}/>
+      }
     </>
   ); 
 }

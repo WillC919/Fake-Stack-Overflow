@@ -1,7 +1,7 @@
 import '../stylesheets/fsoHeader.css';
 import axios from 'axios';
 
-export default function Header({setQuestsData, setPageIndex}) {
+export default function Header({userData, setUserData, setQuestsData, setPageIndex}) {
     return (
         <div id="header">
             <div id="banner">
@@ -35,4 +35,12 @@ function search(event, setQuestsData, setPageIndex) {
             setPageIndex(5);
         });
     }
+}
+
+function logout() {
+    axios.post('http://localhost:8000/logout').then(res => {
+        if (res.status === 400){
+            console.log('error')
+        } else console.log('yes')
+    })
 }
