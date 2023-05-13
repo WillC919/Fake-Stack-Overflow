@@ -116,13 +116,6 @@ function handleClick(event, userData, setPageIndex) {
             if (vaild) { document.getElementById("questTagsError").innerText = ""; }
         }
     }
-      
-    // if (user.length === 0) {
-    //     vaild = false;
-    //     document.getElementById("questUserError").innerText = ">> Needs Username!!";
-    // } else {
-    //     document.getElementById("questUserError").innerText = "";
-    // }
 
     if (vaild) {
         axios.post('http://localhost:8000/postQuestion', {
@@ -131,6 +124,7 @@ function handleClick(event, userData, setPageIndex) {
             text: text,
             tags: tags,
             asked_by: user,
+            user_id: userData._id
         }).then(res => {
             console.log(res);
             setPageIndex(0);

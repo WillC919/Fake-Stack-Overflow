@@ -1,13 +1,18 @@
 import '../stylesheets/answerPage.css'
 import '../stylesheets/questionPost.css'
 import CreateAnswerRows from './answerRows';
+import CreateCommentRows from './commentRows';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
 export default function Answers({userData, setPageIndex, questionId}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
-    const [votes, setVotes] = useState(0);
+    const [answerIndex, setAnswerIndex] = useState(0);
+
+    const [votes, setVotes] = useState(0)
+    const [upvotes, setUpvotes] = useState(false);
+    const [downvotes, setDownvotes] = useState(false);
 
     useEffect(() => {
         async function fetchAnswerData(answerId){
@@ -39,12 +44,18 @@ export default function Answers({userData, setPageIndex, questionId}) {
     }, [questionId]);
 
     function upvote(){
-        setVotes(votes + 1);
-        axios.post(`http://localhost:8000/question/:${questionId}/upvote`);
+        if (upvotes === false){
+            setUpvotes(true)
+            setVotes(v => v+1);
+            axios.post(`http://localhost:8000/question/:${questionId}/upvote`);
+        }
     } 
     function downvote(){
-        setVotes(votes - 1)
-        axios.post(`http://localhost:8000/question/:${questionId}/downvote`);
+        if (downvotes === false){
+            setDownvotes(true)
+            setVotes(v => v-1);
+            axios.post(`http://localhost:8000/question/:${questionId}/downvote`);
+        }
     } 
 
     return (question ? 
@@ -67,12 +78,21 @@ export default function Answers({userData, setPageIndex, questionId}) {
                         <td id='askedBy'><p>{question.asked_by}</p>{' asked ' + calcTime(new Date(question.ask_date_time))}</td>
                     </tr>
                     <tr>
-                        
+                        <td colSpan={4}><CreateCommentRows userData={userData} setPageIndex = {setPageIndex} listOfCommentIds={question.comments} AttachmentId = {question._id}/></td>
                     </tr>
                 </tbody>
             </table>
-            <CreateAnswerRows listOfAnswers={answerList}/>
-            <button id='answerQuestion' onClick={() => {userData.accType !== 'Guest' ? setPageIndex(4):alert('Please sign in')}}>Answer Question</button>
+            <CreateAnswerRows userData = {userData} setPageIndex = {setPageIndex} listOfAnswers = {answerList} answerIndex = {answerIndex}/>
+            <div className="viewBtn">
+                <div><button className="curr">Page {answerIndex+1}</button></div>
+                
+                {answerIndex !== 0 && 
+                    <div><button className="prev" onClick={() => setAnswerIndex(answerIndex-1)}>Prev</button></div>}
+                {answerIndex < Math.floor((answerList.length-1)/5) && 
+                    <div><button className="next" onClick={() => setAnswerIndex(answerIndex+1)}>Next</button></div>}
+
+                <button id='answerQuestion' onClick={() => {userData.accType !== 'Guest' ? setPageIndex(4):alert('Please sign in')}}>Answer Question</button>
+            </div>
         </div> : 
         <div>
             {/* This is to rendering loading page */ }

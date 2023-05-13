@@ -17,6 +17,7 @@ let Tag = require('./models/tags');
 let Answer = require('./models/answers');
 let Question = require('./models/questions');
 let User = require('./models/users');
+let Comment = require('./models/comments');
 
 let mongoose = require('mongoose');
 let mongoDB = "mongodb://127.0.0.1:27017/fake_so";
@@ -44,11 +45,10 @@ app.use(
   })
 )
 
-
 app.get('/cookie', async function (req, res) {
   if (req.session.isAuthenticated) {
     try {
-      console.log(req.session.userId);
+      //console.log(req.session.userId);
       const result = await User.findOne({email: req.session.userId}).lean();
       res.send(result);
     } catch (error) { res.send([]); }
@@ -86,11 +86,22 @@ app.get('/question/:qid', async function (req, res) {
 app.post('/question/:qid/upvote', async function (req, res) {
   try {
     // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    await Question.findByIdAndUpdate(req.params.qid.substring(1), {$inc: {votes: 1}});
-    const user = await User.find({questions: {$elemMatch:{$in:req.params.qid.substring(1)}}})
-    user.reputation = user.votes * 5;
-    user.save();
-  } catch (error) { console.log('Was unable to find the Question'); }
+    const qid = req.params.qid.substring(1);
+    const question = await Question.findByIdAndUpdate(qid, {$inc: {votes: 1}});
+    const rep = question.votes * 5;
+    const user = await User.findOneAndUpdate({questions:{$elemMatch:{$in:[qid]}}}, {reputation: rep})
+    await user.save();
+  } catch (error) { console.log(error); }
+});
+app.post('/question/:qid/downvote', async function (req, res) {
+  try {
+    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
+    const qid = req.params.qid.substring(1);
+    const question = await Question.findByIdAndUpdate(qid, {$inc: {votes: -1}});
+    const rep = question.votes * 5;
+    const user = await User.findOneAndUpdate({questions:{$elemMatch:{$in:[qid]}}}, {reputation: rep})
+    await user.save();
+  } catch (error) { console.log(error); }
 });
 
 app.get('/answers', async function (req, res) {
@@ -111,15 +122,39 @@ app.get('/tags', async function (req, res) {
 });
 app.get('/tag/:tid', async function (req, res) {
   try {
-    // The .substring(1) in req.params.tid is requried because it reads the ":" as part of the id    
+    // The .substring(1) in req.params.tid is requried because it reads the ":" as part of the id
+    // Here it returns the questions that has the tag instead of the tag detail itself    
     const tid = req.params.tid.substring(1);
     const questions = await Question.find({tags:{$elemMatch:{$in:[tid]}}});
     res.send(questions);
   } catch (error) { console.log('Was unable to find the tag'); }
 });
 
+app.get('/comments', async function (req, res) {
+  const comments = await Comment.find().lean();
+  res.json(comments);
+});
+app.get('/comment/:cid', async function (req, res) {
+  try {
+    // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
+    const result = await Comment.findById(req.params.cid.substring(1)).lean();
+    res.send(result);
+  } catch (error) { console.log('Was unable to find the Comment'); }
+});
 
-
+app.get('/users/:email/questions', async function (req, res) {
+  try{
+    let questions = [];
+    const user = await User.findOne({email: req.params.email.substring(1)});
+    for (const q of user.questions) {
+      questions.push(await Question.findById(q))
+      console.log(questions);
+    }
+    res.send(questions);
+  }catch (err) {
+    console.log(err)
+  }
+});
 
 
 app.post('/find', async (req, res) => { 
@@ -150,6 +185,8 @@ app.post('/find', async (req, res) => {
   });
   res.send(questData);
 });
+
+
 
 app.post('/verify', async function (req, res) {
   try {
@@ -210,29 +247,39 @@ app.post("/logout", (req, res) => {
 })
 
 app.post('/postQuestion', async function (req, res) {
-  let tags = [];
-  
-  for (let i = 0; i < req.body.tags.length; i++){
-    let existedTag = await Tag.findOne(({name: req.body.tags[i]}))
-    if (existedTag === null){
-      existedTag = new Tag({name: req.body.tags[i]});
-      await existedTag.save()
+  try {
+    let tags = [];
+    let user = await User.findOne({_id: req.body.user_id});
+
+    for (let i = 0; i < req.body.tags.length; i++){
+      let existedTag = await Tag.findOne(({name: req.body.tags[i]}))
+      if (existedTag === null){
+        existedTag = new Tag({name: req.body.tags[i]});
+        await existedTag.save();
+        user.tags.push(existedTag._id);
+      }
+      tags.push(existedTag._id);
     }
-    tags.push(existedTag._id);
+
+    let questDetail = {
+      title: req.body.title,
+      summary: req.body.summary,
+      text: req.body.text,
+      tags: tags,
+      asked_by: req.body.asked_by,
+      ask_date_time: new Date(),
+    };
+
+    let quest = new Question(questDetail);
+    await quest.save();
+
+    user.questions.push(quest._id);
+    await user.save();
+
+    res.send(quest);
+  } catch (err) {
+    console.log('Cannot post question');
   }
-
-  let questDetail = {
-    title: req.body.title,
-    summary: req.body.summary,
-    text: req.body.text,
-    tags: tags,
-    asked_by: req.body.asked_by,
-    ask_date_time: new Date(),
-  };
-
-  let quest = new Question(questDetail);
-  await quest.save();
-  res.send(quest);
 });
 
 app.post('/postAnswer', async function (req, res) {
@@ -244,13 +291,34 @@ app.post('/postAnswer', async function (req, res) {
 
   let ans = new Answer(answerDetail);
   ans = await ans.save();
+
   try {
+    //User.findByIdAndUpdate(req.body.user_id, {$push: {answers: ans._id}});
     let result = await Question.findByIdAndUpdate(req.body.qid, {$push: {answers: ans._id}}).lean();
     res.send(result);
   } catch (error) { console.log('Was unable to find the Question'); }
 });
 
+app.post('/postComment', async function (req, res) {
+  let commentDetail = {
+    text: req.body.text,
+    commented_by: req.body.com_by,
+    commented_date: new Date()
+  };
 
+  let com = new Comment(commentDetail);
+  com = await com.save();
+
+  try {
+    //User.findByIdAndUpdate(req.body.user_id, {$push: {comments: com._id}});
+    let result = await Question.findByIdAndUpdate(req.body.id, {$push: {comments: com._id}}).lean();
+    if (result) { res.send(result); }
+    else { 
+      result = await Answer.findByIdAndUpdate(req.body.id, {$push: {comments: com._id}}).lean(); 
+      res.send(result);
+    }
+  } catch (error) { console.log('Was unable to find the Question'); }
+});
 
 
 

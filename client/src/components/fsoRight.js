@@ -6,6 +6,8 @@ import PostQuestion from './questionPost.js';
 import Answers from './answerPage.js'
 import PostAnswer from './answerPost.js';
 
+import Profile from './profile/profilePage.js';
+
 import '../stylesheets/fsoRight.css'
 import { useState } from 'react';
 
@@ -30,7 +32,7 @@ export default function Right({userData, pageIndex, setPageIndex, questsData, se
             
             { pageIndex === 4 && <PostAnswer userData = {userData} setPageIndex = {setPageIndex} questionId={questionId}/> }
 
-            {/* { pageIndex === 7 && <Profile/>} */}
+            { pageIndex === 7 && <Profile userData = {userData}/>}
         </div>
     );
 }

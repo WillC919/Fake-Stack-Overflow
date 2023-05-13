@@ -45,7 +45,8 @@ function handleClick(event, userData, setPageIndex, questionId) {
         axios.post('http://localhost:8000/postAnswer', {
             text: text,
             ans_by: user,
-            qid: questionId
+            qid: questionId,
+            user_id: userData._id,
         }).then(res => {
             console.log(res);
             setPageIndex(3);

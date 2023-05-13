@@ -1,14 +1,19 @@
 import '../stylesheets/answerRows.css';
-export default function CreateAnswerRows({listOfAnswers}) {
+import CreateCommentRows from './commentRows';
+
+export default function CreateAnswerRows({userData, setPageIndex, listOfAnswers, answerIndex}) {
     return (listOfAnswers ?
         <table id='answerRows' width="100%">
             <tbody>
-                {listOfAnswers.map((a) =>
+                {listOfAnswers.slice(answerIndex*5, answerIndex*5+5).map((a) => <>
                     <tr className='answerRow' key={a._id}>
                         <td className='answerText'><Format text={a.text}/></td>
                         <td className='answeredBy'><p>{a.ans_by}</p>{' answered ' + calcTime(new Date(a.ans_date_time))}</td>
                     </tr>
-                )}
+                    <tr>
+                        <td colSpan={2}><CreateCommentRows userData = {userData} setPageIndex = {setPageIndex} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
+                    </tr>
+                </>)}
             </tbody>
         </table> :
         <table id='answerRows' width="100%">
