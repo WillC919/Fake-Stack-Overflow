@@ -1,4 +1,4 @@
-// import '../stylesheets/commentRows.css';
+import '../stylesheets/commentRows.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -7,7 +7,7 @@ export default function CreateCommentRows({userData, setPageIndex, listOfComment
     const [listOfComments, setListOfComments] = useState(null);
     
     useEffect(() => {
-        async function fetchCommentData(commentId){
+        async function fetchCommentData(commentId) {
             try {
                 const response = await axios.get(`http://localhost:8000/comment/:${commentId}`);
                 return response.data;
@@ -16,14 +16,19 @@ export default function CreateCommentRows({userData, setPageIndex, listOfComment
                 return null;
             }
         }
+        async function setCommentData() {
+            const result = listOfCommentIds.map(fetchCommentData);
+            const comments = await Promise.all(result);
+            comments.sort(function(a,b){return new Date(b.ans_date_time).getTime() - new Date(a.ans_date_time).getTime()});
+            setListOfComments(comments);
+        }
 
-        const result = listOfCommentIds.map(fetchCommentData);
-        setListOfComments(result);
+        setCommentData();
     }, [listOfCommentIds]);
 
-    return <Comments listOfComments = {listOfComments} commentIndex = {commentIndex}/>;
+    return <Comments userData = {userData} setPageIndex = {setPageIndex} listOfComments = {listOfComments} attachmentId = {AttachmentId} commentIndex = {commentIndex} setCommentIndex = {setCommentIndex}/>;
 }
-function Comments({listOfComments, commentIndex}) {
+function Comments({userData, setPageIndex, listOfComments, attachmentId, commentIndex, setCommentIndex}) {
     return (listOfComments ?
         <table id='commentRows' width="100%">
             <tbody>
@@ -38,7 +43,7 @@ function Comments({listOfComments, commentIndex}) {
                 {userData.accType !== "Guest" && <tr>
                     <td width="20%"></td>
                     <td width="75%">
-                        <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setPageIndex, setCommentIndex, AttachmentId)}>
+                        <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setPageIndex, setCommentIndex, attachmentId)}>
                             <textarea id="commentText" name="commentText" placeholder="Your details..." required></textarea>
                             <p id = "invalidComment"></p>
                             <input id="commentSubmit" type="Submit" defaultValue="Post Comment"></input>
@@ -51,7 +56,7 @@ function Comments({listOfComments, commentIndex}) {
         <table id='commentRows' width="100%">
             <tbody>
                 <tr className='commentRow'>
-                    <td className='commentText'>loading answers...</td>
+                    <td className='commentText'>loading comments...</td>
                 </tr>
             </tbody>
         </table>

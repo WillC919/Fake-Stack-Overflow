@@ -138,6 +138,7 @@ app.get('/comment/:cid', async function (req, res) {
   try {
     // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
     const result = await Comment.findById(req.params.cid.substring(1)).lean();
+    console.log(result);
     res.send(result);
   } catch (error) { console.log('Was unable to find the Comment'); }
 });
