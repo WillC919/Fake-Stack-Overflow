@@ -3,9 +3,7 @@ import { useState } from 'react';
 import '../stylesheets/fsoLogin.css'
 //onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)}
 //The Welcome / Login Page
-export default function LoginPage() {
-    const [displayIndex, setDisplayIndex] = useState(0);
-
+export default function LoginPage({displayIndex, setDisplayIndex, setUserData}) {
     return (<>
         {(displayIndex === 0) &&
         <div id="wrapper">
@@ -25,9 +23,7 @@ export default function LoginPage() {
                 <div className="infoBox">
                     <h2>Browse as Guest</h2>
                     <p>Just want to browse around the website. No problem.</p>
-                    <div className='btn'>
-                        <form action="http://localhost:8000/guest" method="post"><button type="Submit" id="Guest">Guest</button></form>
-                    </div>   
+                    <div className='btn'><button id="Guest" onClick={() => setUserData({user: 'Anonymous', accType: 'Guest'})}>Guest</button></div>   
                 </div>
             </div>
         </div>}
@@ -38,7 +34,7 @@ export default function LoginPage() {
             <hr/>
             <form id="login" name="login"  action="http://localhost:8000/login" method="post" onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex)}> 
             <div className="row">
-                <div className="logUser"><label htmlFor="loginEmail">Username</label></div>
+                <div className="logUser"><label htmlFor="loginEmail">Email</label></div>
                 <div className="logResp">
                     <input type="text" id="loginEmail" name="loginEmail" placeholder="Email" required></input>
                 </div>

@@ -48,11 +48,13 @@ app.use(
 app.get('/cookie', async function (req, res) {
   if (req.session.isAuthenticated) {
     try {
+      console.log(req.session.userId);
       const result = await User.findOne({email: req.session.userId}).lean();
       res.send(result);
     } catch (error) { res.send([]); }
   } else if (req.session.userId === 'Guest') {
-    res.send([{email: 'Guest', username: 'Anonymous', password: null, reputation: null}]);
+    // res.send([{email: 'Guest', username: 'Anonymous', password: null, reputation: null}]);
+    res.send({user: 'Anonymous', accType: 'Guest'});
   } else { res.send([]); }
 });
 
@@ -79,6 +81,15 @@ app.get('/question/:qid', async function (req, res) {
     const result = await Question.findByIdAndUpdate(req.params.qid.substring(1), {$inc: {views: 1}}).lean();
     result.views += 1;
     res.send(result);
+  } catch (error) { console.log('Was unable to find the Question'); }
+});
+app.post('/question/:qid/upvote', async function (req, res) {
+  try {
+    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
+    await Question.findByIdAndUpdate(req.params.qid.substring(1), {$inc: {votes: 1}});
+    const user = await User.find({questions: {$elemMatch:{$in:req.params.qid.substring(1)}}})
+    user.reputation = user.votes * 5;
+    user.save();
   } catch (error) { console.log('Was unable to find the Question'); }
 });
 
@@ -154,6 +165,7 @@ app.post('/login', async function (req, res) {
     req.session.userId = (req.body.loginEmail).toLowerCase();
     req.session.isAuthenticated = true;
     res.redirect('http://localhost:3000/');
+    // res.send(req.session);
   } catch (error) {
     res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
   }
@@ -163,7 +175,8 @@ app.post('/addUser', async function (req, res) {
     let userDetail = {
       email: (req.body.signUpEmail).toLowerCase(),
       user: req.body.signUpUsername,
-      password: req.body.signUpPassword
+      password: req.body.signUpPassword,
+      member_since: new Date(),
     };
   
     let acc = new User(userDetail);
@@ -185,7 +198,15 @@ app.post("/guest", (req, res) => {
   }
 })
 app.post("/logout", (req, res) => {
-  req.session.destroy(err => { res.redirect("/") });
+  if (req.session){
+    req.session.destroy(err => { 
+      if (err) {
+        res.status(400).send('Unable to log out')
+      } else {
+        res.redirect('http://localhost:3000/')
+      }
+    });
+  }
 })
 
 app.post('/postQuestion', async function (req, res) {
@@ -202,6 +223,7 @@ app.post('/postQuestion', async function (req, res) {
 
   let questDetail = {
     title: req.body.title,
+    summary: req.body.summary,
     text: req.body.text,
     tags: tags,
     asked_by: req.body.asked_by,

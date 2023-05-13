@@ -9,8 +9,7 @@
     text-align: center; 
     margin-right: 10%;
 }
-
-#askQuestion{
+.askQuestion{
     background-color: rgb(0, 103, 172);
     color: white;
     padding: 1rem 2rem;

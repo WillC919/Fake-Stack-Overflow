@@ -3,7 +3,7 @@ import Main from './fsoMain.js'
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function FakeStackOverflow({userData}) {
+export default function FakeStackOverflow({userData, setUserData}) {
   const [pageIndex, setPageIndex] = useState(0);
   const [questsData, setQuestsData] = useState([]);
   const [questIndex, setQuestIndex] = useState(0);
@@ -16,8 +16,8 @@ export default function FakeStackOverflow({userData}) {
   
   return (
     <>
-      <Header setQuestsData = {setQuestsData} setPageIndex = {setPageIndex}/>
-      <Main pageIndex = {pageIndex} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData} questIndex={questIndex} setQuestIndex={setQuestIndex} tagsData = {tagsData} setTagsData = {setTagsData}/>
+      <Header userData = {userData} setUserData = {setUserData} setQuestsData = {setQuestsData} setPageIndex = {setPageIndex}/>
+      <Main userData = {userData} setUserData = {setUserData} pageIndex = {pageIndex} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData} questIndex={questIndex} setQuestIndex={setQuestIndex} tagsData = {tagsData} setTagsData = {setTagsData}/>
     </> 
   ); 
 }

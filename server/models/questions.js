@@ -4,13 +4,16 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var QuestionsSchema = new Schema({
-    title: {type: String, required: true, maxLength: 100},
+    title: {type: String, required: true, maxLength: 50},
+    summary: {type: String, required: false},
     text: {type: String, required: true},
     tags: [{type: Schema.Types.ObjectId, ref: 'Tags', required: true}],
     answers: [{type: Schema.Types.ObjectId, ref: 'Answers'}],
     asked_by: {type: String, default: 'Anonyoums'},
     ask_date_time: {type: Date, default: new Date()},
-    views: {type: Number, default: 0}
+    views: {type: Number, default: 0},
+    votes: {type: Number, default: 0},
+    comments: [{type: Schema.Types.ObjectId, ref: 'Comments'}]
 });
 
 QuestionsSchema.virtual('url').get(function () {

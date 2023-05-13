@@ -4,9 +4,10 @@ import CreateAnswerRows from './answerRows';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Answers({setPageIndex, questionId}) {
+export default function Answers({userData, setPageIndex, questionId}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
+    const [votes, setVotes] = useState(0);
 
     useEffect(() => {
         async function fetchAnswerData(answerId){
@@ -28,6 +29,7 @@ export default function Answers({setPageIndex, questionId}) {
                 answers.sort(function(a,b){return new Date(b.ans_date_time).getTime() - new Date(a.ans_date_time).getTime()});
                 setQuestion(response.data);
                 setAnswerList(answers);
+                setVotes(response.data.votes);
             } catch (error) {
                 console.log('Something went wrong');
                 setQuestion(false);
@@ -36,33 +38,50 @@ export default function Answers({setPageIndex, questionId}) {
         fetchQuestionData();
     }, [questionId]);
 
-    
+    function upvote(){
+        setVotes(votes + 1);
+        axios.post(`http://localhost:8000/question/:${questionId}/upvote`);
+    } 
+    function downvote(){
+        setVotes(votes - 1)
+        axios.post(`http://localhost:8000/question/:${questionId}/downvote`);
+    } 
+
     return (question ? 
         <div>
             <table className="right" id="answersTable" width="100%">
                 <tbody>
                     <tr>
-                        <td id='numOfAns' width="20%">{question.answers.length + ' answers'}</td>
-                        <td id='questTitle' width="55%">{question.title}</td>
-                        <td><button className="askQuestion" id='askQuestion' onClick={() => setPageIndex(2)}>Ask Question</button></td>
+                        <td rowSpan={2} width="10%">
+                            <button onClick={upvote}>&#8593;</button>
+                            <p>{votes + ' votes'}</p>
+                            <button onClick={downvote}>&#8595;</button> 
+                        </td>
+                        <td id='numOfAns' width="15%">{question.answers.length + ' answers'}</td>
+                        <td id='questTitle' width="50%">{question.title}</td>
+                        <td><button className="askQuestion" id='askQuestion' onClick={() => {userData.accType !== 'Guest' ? setPageIndex(2):alert('Please sign in')}}>Ask Question</button></td>
                     </tr>
                     <tr>
                         <td id='numOfViews'>{question.views + ' views'}</td>
                         <td id='questText'><Format text={question.text}/></td>
                         <td id='askedBy'><p>{question.asked_by}</p>{' asked ' + calcTime(new Date(question.ask_date_time))}</td>
                     </tr>
+                    <tr>
+                        
+                    </tr>
                 </tbody>
             </table>
             <CreateAnswerRows listOfAnswers={answerList}/>
-            <button id='answerQuestion' onClick={() => setPageIndex(4)}>Answer Question</button>
+            <button id='answerQuestion' onClick={() => {userData.accType !== 'Guest' ? setPageIndex(4):alert('Please sign in')}}>Answer Question</button>
         </div> : 
         <div>
+            {/* This is to rendering loading page */ }
             <table className="right" id="answersTable" width="100%">
                 <tbody>
                     <tr>
                         <td id='numOfAns' width="20%">{question !== null ? 'Something went wrong. Please try again.' : 'Loading Forum ...'}</td>
                         <td id='questTitle' width="55%"></td>
-                        <td><button className="askQuestion" id='askQuestion' onClick={() => setPageIndex(2)}>Ask Question</button></td>
+                        <td><button className="askQuestion" id='askQuestion' onClick={() => {userData.accType !== 'Guest' ? setPageIndex(2):alert('Please sign in')}}>Ask Question</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -145,3 +164,4 @@ function addZero(i) {
     if (i < 10) { i = "0" + i; }
     return i;
 }
+

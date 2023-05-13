@@ -1,22 +1,12 @@
 import '../stylesheets/answerPost.css'
 import axios from 'axios';
 
-export default function PostAnswer({setPageIndex, questionId}) {
+export default function PostAnswer({userData, setPageIndex, questionId}) {
     return (
-        <form id='ansQuestionForum' name="answerQuestionForum" onSubmit={(e) => handleClick(e, setPageIndex, questionId)}>                 
+        <form id='ansQuestionForum' name="answerQuestionForum" onSubmit={(e) => handleClick(e, userData, setPageIndex, questionId)}>                 
             <div className="row">
                 <div className="ansQuestCaptions">
-                    <label htmlFor="ansQuestUsername">Username*</label>
-                </div>
-                <div className="ansQuestResponse">
-                    <input type="text" id="ansQuestUsername" name="ansQuestUsername" placeholder="Your username..." required></input>
-                </div>
-                <p className="invalidText" id="ansQuestUserError"></p>
-            </div>
-
-            <div className="row">
-                <div className="ansQuestCaptions">
-                    <label htmlFor="ansQuestText">Question Text*</label>
+                    <label htmlFor="ansQuestText">Post Your Answer*</label>
                     <p>add details</p>
                 </div>
                 <div className="ansQuestResponse">
@@ -35,11 +25,11 @@ export default function PostAnswer({setPageIndex, questionId}) {
     );
 
 }
-function handleClick(event, setPageIndex, questionId) {
+function handleClick(event, userData, setPageIndex, questionId) {
     event.preventDefault();
 
     const text = event.target.ansQuestText.value;
-    const user = event.target.ansQuestUsername.value;
+    const user = userData.user;
 
     let vaild = true;
     if (text.length === 0) {
@@ -49,13 +39,6 @@ function handleClick(event, setPageIndex, questionId) {
         const txtErrMsg = checkForHyperlinks(text);
         if (txtErrMsg !== "") vaild = false;
         document.getElementById("ansQuestTextError").innerText = txtErrMsg; 
-    }
-      
-    if (user.length === 0) {
-        vaild = false;
-        document.getElementById("ansQuestUserError").innerText = ">> Needs Username!!";
-    } else {
-        document.getElementById("ansQuestUserError").innerText = "";
     }
 
     if (vaild) {

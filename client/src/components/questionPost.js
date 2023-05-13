@@ -1,9 +1,9 @@
 import '../stylesheets/questionPost.css';
 import axios from 'axios';
 
-export default function PostQuestion({setPageIndex}) {
+export default function PostQuestion({userData, setPageIndex}) {
     return (
-        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, setPageIndex)}> 
+        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, userData, setPageIndex)}> 
             <div className="row">
                 <div className="askQuestCaptions">
                     <label htmlFor="askQuestTitle">Question Title*</label>
@@ -13,6 +13,17 @@ export default function PostQuestion({setPageIndex}) {
                     <input type="text" id="askQuestTitle" name="askQuestTitle" placeholder="Your question..." required></input>
                 </div>
                 <p className="invalidText" id="questTitleError"></p>
+            </div>
+
+            <div className="row">
+                <div className="askQuestCaptions">
+                    <label htmlFor="askQuestSum">Question Summary*</label>
+                    <p>add details</p>
+                </div>
+                <div className="askQuestResponse">
+                    <textarea id="askQuestSum" name="askQuestSum" placeholder="Question summary..." required></textarea>
+                </div>
+                <p className="invalidText" id="questSumError"></p>
             </div>
 
             <div className="row">
@@ -37,15 +48,6 @@ export default function PostQuestion({setPageIndex}) {
                 <p className="invalidText" id="questTagsError"></p>
             </div>
             
-            <div className="row">
-                <div className="askQuestCaptions">
-                    <label htmlFor="askQuestUsername">Username*</label>
-                </div>
-                <div className="askQuestResponse">
-                    <input type="text" id="askQuestUsername" name="askQuestUsername" placeholder="Your username..." required></input>
-                </div>
-                <p className="invalidText" id="questUserError"></p>
-            </div>
             <br/>
             
             <div className="row" id="lastRow">
@@ -57,22 +59,31 @@ export default function PostQuestion({setPageIndex}) {
 }
 
 
-function handleClick(event, setPageIndex) {
+function handleClick(event, userData, setPageIndex) {
     event.preventDefault();
 
     const title = event.target.askQuestTitle.value;
+    const summary = event.target.askQuestSum.value;
     const text = event.target.askQuestText.value;
     let tags = event.target.askQuestTags.value.toLowerCase();
-    const user = event.target.askQuestUsername.value;
+    const user = userData.user;
 
     let vaild = true;
-    if (title.length > 100) {
+    if (title.length > 50) {
         vaild = false;
         document.getElementById("questTitleError").innerText = ">> Title excceeds 100 character limit!!";
     } else if (title.length === 0) {
         vaild = false;
         document.getElementById("questTitleError").innerText = ">> Needs a title!!";
     } else { document.getElementById("questTitleError").innerText = ""; }
+
+    if (summary.length > 140) {
+        vaild = false;
+        document.getElementById("questSumError").innerText = ">> Summary excceeds 140 character limit!!";
+    } else if (summary.length === 0) {
+        vaild = false;
+        document.getElementById("questSumError").innerText = ">> Needs a summary!!";
+    } else { document.getElementById("questSumError").innerText = ""; }
 
     if (text.length === 0) {
         vaild = false;
@@ -106,16 +117,17 @@ function handleClick(event, setPageIndex) {
         }
     }
       
-    if (user.length === 0) {
-        vaild = false;
-        document.getElementById("questUserError").innerText = ">> Needs Username!!";
-    } else {
-        document.getElementById("questUserError").innerText = "";
-    }
+    // if (user.length === 0) {
+    //     vaild = false;
+    //     document.getElementById("questUserError").innerText = ">> Needs Username!!";
+    // } else {
+    //     document.getElementById("questUserError").innerText = "";
+    // }
 
     if (vaild) {
         axios.post('http://localhost:8000/postQuestion', {
             title: title,
+            summary: summary,
             text: text,
             tags: tags,
             asked_by: user,

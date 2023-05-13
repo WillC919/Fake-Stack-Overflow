@@ -6,7 +6,8 @@ var Schema = mongoose.Schema;
 var AnswersSchema = new Schema({
     text: {type: String, required: true},
     ans_by: {type: String, required: true},
-    ans_date_time: {type: Date, default: new Date()}
+    ans_date_time: {type: Date, default: new Date()},
+    comments: [{type: Schema.Types.ObjectId, ref: 'Comments'}]
 });
 
 AnswersSchema.virtual('url').get(function () {

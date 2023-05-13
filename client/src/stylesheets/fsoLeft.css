@@ -25,9 +25,9 @@
 }
 
 
-#questions:hover, #tags:hover {
+#questions:hover, #tags:hover, #profile:hover, #logInOut:hover {
     background-color: #b6b6b6;
 }
-#questions:active, #tags:active {
+#questions:active, #tags:active, #profile:active, #logInOut:active {
     background-color: rgb(129, 129, 129);
 }
