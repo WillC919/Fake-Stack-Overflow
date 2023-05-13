@@ -30,7 +30,7 @@ export default function Right({userData, pageIndex, setPageIndex, questsData, se
             
             { pageIndex === 4 && <PostAnswer userData = {userData} setPageIndex = {setPageIndex} questionId={questionId}/> }
 
-            {/* { pageIndex === 10 && <Profile/>} */}
+            {/* { pageIndex === 7 && <Profile/>} */}
         </div>
     );
 }

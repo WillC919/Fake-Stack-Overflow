@@ -52,10 +52,10 @@ export default function Answers({userData, setPageIndex, questionId}) {
             <table className="right" id="answersTable" width="100%">
                 <tbody>
                     <tr>
-                        <td rowSpan={2} width="10%">
-                            <button onClick={upvote}>&#8593;</button>
+                        <td rowSpan={2} width="10%" id="voteBtns">
+                            <button className = "voteBtn" onClick={upvote}>&#8593;</button>
                             <p>{votes + ' votes'}</p>
-                            <button onClick={downvote}>&#8595;</button> 
+                            <button className = "voteBtn" onClick={downvote}>&#8595;</button> 
                         </td>
                         <td id='numOfAns' width="15%">{question.answers.length + ' answers'}</td>
                         <td id='questTitle' width="50%">{question.title}</td>
