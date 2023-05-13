@@ -21,7 +21,7 @@ export default function Profile({userData}) {
                 const questionPromises = questionId.map(fetchQuestionData);
                 const questions = await Promise.all(questionPromises);
                 questions.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
-                setQuestions(response.data);
+                setQuestions();
             } catch (error) {
                 console.log('Something went wrong');
                 setQuestion(false);
