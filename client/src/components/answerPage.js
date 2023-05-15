@@ -14,6 +14,7 @@ export default function Answers({userData, setPageIndex, questionId}) {
     const [upvotes, setUpvotes] = useState(false);
     const [downvotes, setDownvotes] = useState(false);
 
+
     useEffect(() => {
         async function fetchAnswerData(answerId){
             try {
@@ -64,21 +65,23 @@ export default function Answers({userData, setPageIndex, questionId}) {
                 <tbody>
                     <tr>
                         <td rowSpan={2} width="10%" id="voteBtns">
-                            <button className = "voteBtn" onClick={upvote}>&#8593;</button>
+                            {userData.accType !== "Guest" && 
+                                <button className = "voteBtn" onClick={upvote}>&#8593;</button>}
                             <p>{votes + ' votes'}</p>
-                            <button className = "voteBtn" onClick={downvote}>&#8595;</button> 
+                            {userData.accType !== "Guest" && 
+                                <button className = "voteBtn" onClick={downvote}>&#8595;</button>} 
                         </td>
                         <td id='numOfAns' width="15%">{question.answers.length + ' answers'}</td>
                         <td id='questTitle' width="50%">{question.title}</td>
                         <td><button className="askQuestion" id='askQuestion' onClick={() => {userData.accType !== 'Guest' ? setPageIndex(2):alert('Please sign in')}}>Ask Question</button></td>
                     </tr>
-                    <tr>
+                    <tr id="questHeaderBottom">
                         <td id='numOfViews'>{question.views + ' views'}</td>
                         <td id='questText'><Format text={question.text}/></td>
                         <td id='askedBy'><p>{question.asked_by}</p>{' asked ' + calcTime(new Date(question.ask_date_time))}</td>
                     </tr>
                     <tr>
-                        <td colSpan={4}><CreateCommentRows userData={userData} setPageIndex = {setPageIndex} listOfCommentIds={question.comments} AttachmentId = {question._id}/></td>
+                        <td colSpan={4}><CreateCommentRows userData={userData} listOfCommentIds={question.comments} AttachmentId = {question._id}/></td>
                     </tr>
                 </tbody>
             </table>

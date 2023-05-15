@@ -1,7 +1,7 @@
 import '../stylesheets/answerRows.css';
 import CreateCommentRows from './commentRows';
 
-export default function CreateAnswerRows({userData, setPageIndex, listOfAnswers, answerIndex}) {
+export default function CreateAnswerRows({userData, listOfAnswers, answerIndex}) {
     return (listOfAnswers ?
         <table id='answerRows' width="100%">
             <tbody>
@@ -11,7 +11,7 @@ export default function CreateAnswerRows({userData, setPageIndex, listOfAnswers,
                         <td className='answeredBy'><p>{a.ans_by}</p>{' answered ' + calcTime(new Date(a.ans_date_time))}</td>
                     </tr>
                     <tr>
-                        <td colSpan={2}><CreateCommentRows userData = {userData} setPageIndex = {setPageIndex} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
+                        <td colSpan={2}><CreateCommentRows userData = {userData} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
                     </tr>
                 </>)}
             </tbody>

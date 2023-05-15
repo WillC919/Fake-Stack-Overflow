@@ -56,7 +56,7 @@ export default function Questions({userData, pageIndex, setPageIndex, setQuestio
             <div className="viewBtn">
                 <div><button className="curr">Page {questIndex+1}</button></div>
                 {questIndex !== 0 && <div><button className="prev" onClick={() => setQuestIndex(questIndex-1)}>Prev</button></div>}
-                {questIndex < Math.floor((questsData.length-1)/5) && <div><button id="next" onClick={() => setQuestIndex(questIndex+1)}>Next</button></div>}
+                {questIndex < Math.floor((questsData.length-1)/5) && <div><button className="next" onClick={() => setQuestIndex(questIndex+1)}>Next</button></div>}
             </div>
         </div>
     );

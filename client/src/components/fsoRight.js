@@ -10,6 +10,7 @@ import Profile from './profile/profilePage.js';
 
 import '../stylesheets/fsoRight.css'
 import { useState } from 'react';
+import QuestionEdit from './profile/questionEdit.js';
 
 export default function Right({userData, pageIndex, setPageIndex, questsData, setQuestsData, questIndex, setQuestIndex, tagsData, setTagsData}) {
     const [questionId, setQuestionId] = useState('');
@@ -26,13 +27,15 @@ export default function Right({userData, pageIndex, setPageIndex, questsData, se
             
             { pageIndex === 1 && <Tags setPageIndex = {setPageIndex} questsData = {questsData} setQuestHeader = {setQuestHeader} tagsData = {tagsData} setTagId = {setTagId}/> }
                         
-            { pageIndex === 2 && <PostQuestion userData = {userData} setPageIndex = {setPageIndex}/> }
+            { pageIndex === 2 && <PostQuestion userData = {userData} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData}/> }
             
             { pageIndex === 3 && <Answers userData = {userData} setPageIndex = {setPageIndex} questionId={questionId}/> }
             
             { pageIndex === 4 && <PostAnswer userData = {userData} setPageIndex = {setPageIndex} questionId={questionId}/> }
 
-            { pageIndex === 7 && <Profile userData = {userData}/>}
+            { pageIndex === 7 && <Profile userData = {userData} questsData = {questsData} setPageIndex = {setPageIndex} setQuestionId = {setQuestionId}/>}
+
+            { pageIndex === 8 && <QuestionEdit userData = {userData} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData} questionId = {questionId}/>}
         </div>
     );
 }

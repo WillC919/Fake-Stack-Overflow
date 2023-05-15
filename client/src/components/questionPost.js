@@ -1,9 +1,9 @@
 import '../stylesheets/questionPost.css';
 import axios from 'axios';
 
-export default function PostQuestion({userData, setPageIndex}) {
+export default function PostQuestion({userData, setPageIndex, questsData, setQuestsData}) {
     return (
-        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, userData, setPageIndex)}> 
+        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, userData, setPageIndex, questsData, setQuestsData)}> 
             <div className="row">
                 <div className="askQuestCaptions">
                     <label htmlFor="askQuestTitle">Question Title*</label>
@@ -59,7 +59,7 @@ export default function PostQuestion({userData, setPageIndex}) {
 }
 
 
-function handleClick(event, userData, setPageIndex) {
+function handleClick(event, userData, setPageIndex, questsData, setQuestsData) {
     event.preventDefault();
 
     const title = event.target.askQuestTitle.value;
@@ -126,7 +126,7 @@ function handleClick(event, userData, setPageIndex) {
             asked_by: user,
             user_id: userData._id
         }).then(res => {
-            console.log(res);
+            setQuestsData([res.data, ...questsData]);
             setPageIndex(0);
         })
         .catch(err => { console.log(err); })
