@@ -88,29 +88,54 @@ app.get('/questions', async function (req, res) {
 app.get('/question/:qid', async function (req, res) {
   try {
     // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const result = await Question.findByIdAndUpdate(req.params.qid.substring(1), {$inc: {views: 1}}).lean();
-    result.views += 1;
+    const result = await Question.findById(req.params.qid.substring(1)).lean();
     res.send(result);
   } catch (error) { console.log('Was unable to find the Question'); }
 });
-app.post('/question/:qid/upvote', async function (req, res) {
+app.get('/question/:qid/view', async function (req, res) {
   try {
     // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const qid = req.params.qid.substring(1);
-    const question = await Question.findByIdAndUpdate(qid, {$inc: {votes: 1}});
-    const rep = question.votes * 5;
-    const user = await User.findOneAndUpdate({questions:{$elemMatch:{$in:[qid]}}}, {reputation: rep})
+    const result = await Question.findByIdAndUpdate(req.params.qid.substring(1), {$inc: {views: 1}}).lean();
+    result.views += 1;
+    res.send(result);
+  } catch (error) { console.log('Was unable to increase the views'); }
+});
+app.post('/question/upvote', async function (req, res) {
+  try {
+    const question = await Question.findById(req.body.id);
+    const user = await User.findById(req.body.userId);
+    console.log(question.downvotes.indexOf(req.body.userId));
+    if (question.downvotes.indexOf(req.body.userId) >= 0) {
+      question.downvotes = question.downvotes.filter((id) => id != req.body.userId);
+      user.reputation += 5;
+    }
+    console.log(question.upvotes.indexOf(req.body.userId));
+    if (question.upvotes.indexOf(req.body.userId) < 0) {
+      question.upvotes.push(req.body.userId);
+      user.reputation += 5;
+    }
+
+    await question.save();
     await user.save();
+    res.send(question.upvotes.length - question.downvotes.length);
   } catch (error) { console.log(error); }
 });
-app.post('/question/:qid/downvote', async function (req, res) {
+app.post('/question/downvote', async function (req, res) {
   try {
-    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const qid = req.params.qid.substring(1);
-    const question = await Question.findByIdAndUpdate(qid, {$inc: {votes: -1}});
-    const rep = question.votes * 5;
-    const user = await User.findOneAndUpdate({questions:{$elemMatch:{$in:[qid]}}}, {reputation: rep})
+    const question = await Question.findById(req.body.id);
+    const user = await User.findById(req.body.userId);
+    if (question.upvotes.indexOf(req.body.userId)) { 
+      question.upvotes = question.upvotes.filter((id) => id != req.body.userId);
+      user.reputation -= 5;
+    }
+    
+    if (question.downvotes.indexOf(req.body.userId) < 0) { 
+      question.downvotes.push(req.body.userId);
+      user.reputation -= 5;
+    }
+    await question.save();
     await user.save();
+    res.send(question.upvotes.length - question.downvotes.length);
   } catch (error) { console.log(error); }
 });
 
@@ -152,7 +177,20 @@ app.get('/tag/tid/:tid', async function (req, res) {
     res.send(tag);
   } catch (error) { console.log('Was unable to find the tag'); }
 });
-
+app.post('/edittag/:tid', async function (req, res) {
+  try {
+    const tag = await Tag.findByIdAndUpdate(req.params.tid.substring(1), {name: req.body.name});
+    res.send('Update tag success');
+  } catch (error) { console.log('Was unable to update tag'); }
+});
+app.post('/deletetag/:tid', async function (req, res) {
+  try {
+    const tag = await Tag.findByIdAndRemove(req.params.tid.substring(1));
+    await User.updateOne({tags: {$in: req.params.tid.substring(1)}}, {$pull: {tags: req.params.tid.substring(1)}});
+    await Question.updateMany({tags: {$in: req.params.tid.substring(1)}}, {$pull: {tags: req.params.tid.substring(1)}});
+    res.send(tag);
+  } catch (error) { console.log('Was unable to find the tag'); }
+});
 
 
 
@@ -168,27 +206,22 @@ app.get('/comment/:cid', async function (req, res) {
     res.send(result);
   } catch (error) { console.log('Was unable to find the Comment'); }
 });
-app.post('/comment/:cid/upvote', async function (req, res) {
+app.post('/comment/:cid/upvote/:uid', async function (req, res) {
   try {
-    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const cid = req.params.cid.substring(1);
-    const comment = await Comment.findByIdAndUpdate(cid, {$inc: {votes: 1}});
-    const rep = comment.votes * 5;
-    const user = await User.findOneAndUpdate({questions:{$elemMatch:{$in:[cid]}}}, {reputation: rep})
-    await user.save();
-  } catch (error) { console.log(error); }
+    // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
+    const result = await Comment.findByIdAndUpdate(req.params.cid.substring(1), {$push: {upvotes: req.params.uid.substring(1)}}, {new:true}).lean();
+    console.log(result);
+    res.send(result);
+  } catch (error) { console.log('Was unable to find the Comment'); }
 });
-app.post('/comment/:cid/downvote', async function (req, res) {
+app.post('/comment/:cid/downvote/:uid', async function (req, res) {
   try {
-    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const cid = req.params.cid.substring(1);
-    const comment = await Comment.findByIdAndUpdate(cid, {$inc: {votes: -1}});
-    const rep = comment.votes * 5;
-    const user = await User.findOneAndUpdate({questions:{$elemMatch:{$in:[cid]}}}, {reputation: rep})
-    await user.save();
-  } catch (error) { console.log(error); }
+    // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
+    const result = await Comment.findByIdAndUpdate(req.params.cid.substring(1), {$push: {downvotes: req.params.uid.substring(1)}}, {new:true}).lean();
+    console.log(result);
+    res.send(result);
+  } catch (error) { console.log('Was unable to find the Comment'); }
 });
-
 
 
 
@@ -320,19 +353,21 @@ app.post('/postQuestion', async function (req, res) {
 });
 app.post('/editquestion/:qid', async function (req, res) {
   try {
-    console.log(req.body.title);
     let tags = [];
+    let user = await User.findOne({_id: req.body.user_id});
+
     for (let i = 0; i < req.body.tags.length; i++){
       let existedTag = await Tag.findOne(({name: req.body.tags[i]}))
       if (existedTag === null){
         existedTag = new Tag({name: req.body.tags[i]});
         await existedTag.save();
+        user.tags.push(existedTag._id);
       }
       tags.push(existedTag._id);
     }
 
     // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
-    const result = await Question.findOneAndUpdate({ _id: req.params.qid.substring(1) },
+    const result = await Question.findByIdAndUpdate(req.params.qid.substring(1),
       { 
         $set: {
           title: req.body.title,
@@ -345,10 +380,32 @@ app.post('/editquestion/:qid', async function (req, res) {
     );
     
     await result.save();
-    console.log(result);
+    await user.save();
     res.send(result);
   } catch (error) { console.log(error); }
 });
+app.post('/deletequestion/:qid', async function (req, res) {
+  try {
+    // The .substring(1) in req.params.qid is requried because it reads the ":" as part of the id
+    const question = await Question.findByIdAndRemove(req.params.qid.substring(1));
+    await User.updateOne({questions: {$in: req.params.qid.substring(1)}}, {$pull: {questions: req.params.qid.substring(1)}})
+    const answers = question.answers;
+    const comments = question.comments;
+    for(let i = 0; i < answers.length; i++){
+      const ans = await Answer.findByIdAndRemove(answers[i]);
+      for(let j = 0; j < ans.comments.length; j++){
+        await Comment.findByIdAndRemove(ans.comments[i]);
+      }
+    }
+    for(let i = 0; i < comments.length; i++){
+      await Comment.findByIdAndRemove(comments[i]);
+    }
+    
+    res.send('Removed Success');
+  } catch (error) { console.log(error); }
+});
+
+
 
 app.post('/postAnswer', async function (req, res) {
   let answerDetail = {
