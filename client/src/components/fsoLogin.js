@@ -50,7 +50,7 @@ export default function LoginPage({displayIndex, setDisplayIndex, setUserData}) 
             </div>
 
             <div className="row" id="lastRow">
-                <input id="loginButton" type="Submit" defaultValue="Login"></input>
+                <input className="loginOrUpBtn" id="loginButton" type="Submit" defaultValue="Login"></input>
                 <p className="invalidText" id="signInError"></p>
             </div>
             </form>
@@ -95,7 +95,7 @@ export default function LoginPage({displayIndex, setDisplayIndex, setUserData}) 
             </div>
             
             <div className="row" id="lastRow">
-                <input id="signUpButton" type="Submit" defaultValue="Sign Up"></input>
+                <input className="loginOrUpBtn" id="signUpButton" type="Submit" defaultValue="Sign Up"></input>
                 {/* <p style={{color: 'red'}}>*Indicates mandatory fields</p> */}
             </div>
             </form>

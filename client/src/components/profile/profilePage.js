@@ -1,8 +1,10 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
+import '../../stylesheets/profilePage.css'
 
-export default function Profile({userData}) {
-    const [questions, setQuestions] = useState([]);
+export default function Profile({userData, questsData, setPageIndex, setQuestionId}) {
+    const [questions, setQuestions] = useState(userData.questions);
+    const [user, setUser] = useState(userData);
 
     useEffect(() => {
         async function fetchQuestionData(questionId){
@@ -10,58 +12,63 @@ export default function Profile({userData}) {
                 const response = await axios.get(`http://localhost:8000/question/:${questionId}`);
                 return response.data;
             } catch (error) {
-                console.log('Error in fetching answer');
+                console.log('Error in fetching question');
                 return null;
             }
         }
 
         async function fetchUserData() {
             try {
-                const questionId = userData.questions;
+                const response = await axios.get(`http://localhost:8000/userId/:${userData._id}`);
+                return response.data;
+            } catch (error) {
+                console.log('Error in fetching user')
+            }
+        }
+
+        async function fetchData() {
+            try {
+                const resp = await fetchUserData();
+                setUser(resp);
+                const questionId = user.questions;
                 const questionPromises = questionId.map(fetchQuestionData);
                 const questions = await Promise.all(questionPromises);
                 questions.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
-                setQuestions();
+                setQuestions(questions);
+                
             } catch (error) {
-                console.log('Something went wrong');
-                setQuestion(false);
+                console.log('Error in fetching data');
+                setQuestions([]);
             }
         }
-        fetchUserData();
-    }, [user.questions]);
+
+        
+        fetchData();
+    }, [userData]);
     
     return (
         <div id="profile">
-            <h2>You have been a Fake Stack Overflow member for: {calcTime(new Date(userData.member_since))}</h2>
-            <h3>Your reputation: {userData.reputation}</h3>
-            <div>
-                <table id="profileQuestion">
-                    {/* <tbody>
-                        {userData.questions.map((q) => 
-                            (<tr key={q._id}>
-                                <td>
-                                    <p>{q.answers.length + ' answers'}</p>
-                                    <p>{q.views + ' views'}</p>      
-                                    <p>{q.votes + ' votes'}</p>             
-                                </td>
-                                <td>
-                                    <button className='links' id={q._id} onClick={()=>{setQid(q._id, setPageIndex, setQuestionId)}}>{q.title}</button>
-                                    <p>{q.summary}</p>
-                                    <div>
-                                        {q.tags.map((idTag) => <button key={idTag}>{matchTagIDWithName(idTag, tagsData)}</button>)}
-                                    </div>
-                                </td>
-                                <td>
-                                    <p><span>{q.asked_by}</span>{' asked ' + calcTime(q.ask_date_time)}</p>
-                                </td>
-                            </tr>)
-                        )} 
-                    </tbody> */}
-                </table>
+            <h2>You have been a Fake Stack Overflow member for: {calcTime(new Date(user.member_since))}</h2>
+            <h3>Your reputation: {user.reputation}</h3>
+            <h4>Your questions:</h4>
+            
+            <div id="profileQuestions">
+                <ol id="profileQuestion">
+                    {questions.map((q) => 
+                        (<li key={q._id}>
+                            <button className='links' id={q._id} onClick={()=>{handleClick(q._id, setPageIndex, setQuestionId)}}>{q.title}</button>
+                        </li>)
+                    )} 
+                </ol>
             </div>
             
         </div>
     );
+}
+
+function handleClick(qid, setPageIndex, setQuestionId){
+    setQuestionId(qid)
+    setPageIndex(8)
 }
 
 function calcTime(t){

@@ -2,9 +2,12 @@ import '../stylesheets/commentRows.css';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function CreateCommentRows({userData, setPageIndex, listOfCommentIds, AttachmentId}) {
+export default function CreateCommentRows({userData, listOfCommentIds, AttachmentId}) {
     const [commentIndex, setCommentIndex] = useState(0);
     const [listOfComments, setListOfComments] = useState(null);
+    const [votes, setVotes] = useState(0)
+    const [upvotes, setUpvotes] = useState(false);
+    const [downvotes, setDownvotes] = useState(false);
     
     useEffect(() => {
         async function fetchCommentData(commentId) {
@@ -19,40 +22,68 @@ export default function CreateCommentRows({userData, setPageIndex, listOfComment
         async function setCommentData() {
             const result = listOfCommentIds.map(fetchCommentData);
             const comments = await Promise.all(result);
-            comments.sort(function(a,b){return new Date(b.ans_date_time).getTime() - new Date(a.ans_date_time).getTime()});
+            comments.sort(function(a,b) { return new Date(b.commented_date).getTime() - new Date(a.commented_date).getTime() });
             setListOfComments(comments);
         }
 
         setCommentData();
     }, [listOfCommentIds]);
 
-    return <Comments userData = {userData} setPageIndex = {setPageIndex} listOfComments = {listOfComments} attachmentId = {AttachmentId} commentIndex = {commentIndex} setCommentIndex = {setCommentIndex}/>;
-}
-function Comments({userData, setPageIndex, listOfComments, attachmentId, commentIndex, setCommentIndex}) {
+    function upvote(commentId){
+        if (upvotes === false){
+            setUpvotes(true)
+            setVotes(v => v+1);
+            axios.post(`http://localhost:8000/comment/:${commentId}/upvote`);
+        }
+    } 
+    function downvote(commentId){
+        if (downvotes === false){
+            setDownvotes(true)
+            setVotes(v => v-1);
+            axios.post(`http://localhost:8000/comment/:${commentId}/downvote`);
+        }
+    } 
+    
+
     return (listOfComments ?
-        <table id='commentRows' width="100%">
-            <tbody>
-                {listOfComments.slice(commentIndex*3, commentIndex*3+3).map((c) =>
-                    <tr className='commentRow' key={c._id}>
-                        <td width="15%"></td>
-                        <td width="15%"></td>
-                        <td className='commentText' width="55%">{c.text}</td>
-                        <td className='commentBy'><p>{c.commented_by}</p>{' commented ' + calcTime(new Date(c.commented_date))}</td>
-                    </tr>
-                )}
-                {userData.accType !== "Guest" && <tr>
-                    <td width="20%"></td>
-                    <td width="75%">
-                        <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setPageIndex, setCommentIndex, attachmentId)}>
-                            <textarea id="commentText" name="commentText" placeholder="Your details..." required></textarea>
-                            <p id = "invalidComment"></p>
-                            <input id="commentSubmit" type="Submit" defaultValue="Post Comment"></input>
-                        </form>
+        <table id='commentTable' width="100%">
+            <tbody> {listOfComments.slice(commentIndex*3, commentIndex*3+3).map((c) =>
+                <tr className='commentRow' key={c._id}>
+                    <td width="15%"></td>
+                    <td className="commentVote commentTd" width="10%">
+                            {userData.accType !== "Guest" && 
+                                <button className = "voteBtn" onClick={()=> {upvote(c._id)}}>&#8593;</button>}
+                            <span>{votes}</span>
+                            {userData.accType !== "Guest" && 
+                                <button className = "voteBtn" onClick={()=> {downvote(c._id)}}>&#8595;</button>} 
                     </td>
-                    <td width="5%"></td>
-                </tr>}
+                    <td className="commentText commentTd" width="70%"><Format text = {c.text} commentBy = {c.commented_by} commentDate = {c.commented_date}/></td>
+                    <td className="commentTd"></td>
+                </tr>
+            )} {userData.accType !== "Guest" && <tr>
+                <td width="15%"></td>
+                <td width="80%" colSpan={3}>
+                    <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setCommentIndex, AttachmentId, listOfComments, setListOfComments)}>
+                        <div>
+                            <div className="commentPost" style={{width: "90%"}}>
+                                <textarea id="commentPostText"  name="commentPostText" placeholder="Your details..." required></textarea>
+                            </div>
+                            <div className="commentPost" style={{width: "10%"}}>
+                                <input id="commentPostSubmit"  type="Submit" defaultValue="Post Comment"></input>
+                            </div>
+                        </div>
+                    </form>
+                    <span id = "invalidComment"></span>
+                    <div className="viewCommentBtn">
+                        <div><button className="curr">Page {commentIndex+1}</button></div>
+                        {commentIndex !== 0 && <div><button className="prev" onClick={() => setCommentIndex(commentIndex-1)}>Prev</button></div>}
+                        {commentIndex < Math.floor((listOfComments.length-1)/3) && <div><button className="next" onClick={() => setCommentIndex(commentIndex+1)}>Next</button></div>}
+                    </div>
+                </td>
+            </tr>}
             </tbody>
-        </table> :
+        </table> 
+        :
         <table id='commentRows' width="100%">
             <tbody>
                 <tr className='commentRow'>
@@ -60,18 +91,25 @@ function Comments({userData, setPageIndex, listOfComments, attachmentId, comment
                 </tr>
             </tbody>
         </table>
-    )
+    );
 }
-function handleClick(event, userData, setPageIndex, setCommentIndex, AttachmentId) {
+
+function handleClick(event, userData, setCommentIndex, AttachmentId, listOfComments, setListOfComments) {
     event.preventDefault();
 
-    const text = event.target.commentText.value;
+    const text = event.target.commentPostText.value;
     const user = userData.user;
 
     let vaild = true;
-    if (text.length === 0) {
+    if (userData.repuation < 50) {
+        vaild = false;
+        document.getElementById("invalidComment").innerText = ">> Below reputation requirement to post comments!!";
+    } else if (text.length === 0) {
         vaild = false;
         document.getElementById("invalidComment").innerText = ">> Needs a description!!";
+    } else if (text.length > 140) {
+        vaild = false;
+        document.getElementById("invalidComment").innerText = ">> Exceeded 140 Characters limit!!";
     } else { 
         const txtErrMsg = checkForHyperlinks(text);
         if (txtErrMsg !== "") vaild = false;
@@ -85,13 +123,11 @@ function handleClick(event, userData, setPageIndex, setCommentIndex, AttachmentI
             id: AttachmentId,
             user_id: userData._id,
         }).then(res => {
-            console.log(res);
-            //setPageIndex(3);
             setCommentIndex(0);
+            setListOfComments([res.data, ...listOfComments]);
         }).catch(err => { console.log(err); })
     }
 }
-
 
 function calcTime(t){
     let now = new Date().getTime();
@@ -113,7 +149,7 @@ function addZero(i) {
     return i;
 }
 
-function Format({text}) {
+function Format({text, commentBy, commentDate}) {
     let hyperStateName = false;
     let hyperStateLink = false;
     let name = ""
@@ -167,7 +203,7 @@ function Format({text}) {
         }
     }
     var fin = temp.map(function(v,i) { return [v, temp2[i]]; }).reduce(function(a,b) { return a.concat(b); });
-    return (<div>{fin}</div>);
+    return (<><div>{fin} - <span>{commentBy}</span>{' ' + calcTime(new Date(commentDate))}</div></>);
 }
 
 function checkForHyperlinks(text) {
