@@ -1,10 +1,12 @@
-.answerRow td{
+.answerText {
     padding: 1rem;
-    border-bottom: 2px dotted;
-    width: 75%;
 }
-
-.answerRow p{
+.answerRowBottom td { 
+    border-bottom: 2px dotted;
+}
+.answeredBy p{
     color: green;
 }
-
+.answerVote {
+    text-align: center;
+}

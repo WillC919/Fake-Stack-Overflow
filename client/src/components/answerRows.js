@@ -6,12 +6,22 @@ export default function CreateAnswerRows({userData, listOfAnswers, answerIndex})
         <table id='answerRows' width="100%">
             <tbody>
                 {listOfAnswers.slice(answerIndex*5, answerIndex*5+5).map((a) => <>
-                    <tr className='answerRow' key={a._id}>
-                        <td className='answerText'><Format text={a.text}/></td>
+                    <tr key={a._id}>
+                        <td className="answerVote answerTd" width="10%">
+                            {userData.accType !== "Guest" && 
+                                <button className = "voteBtn" onClick={()=> {/*upvote(c._id)*/}}>&#8593;</button>}
+                            <p>{'Votes'}</p>
+                            {userData.accType !== "Guest" && 
+                                <button className = "voteBtn" onClick={()=> {/*downvote(c._id)*/}}>&#8595;</button>} 
+                        </td>
+                        <td className='answerText' width="75%"><Format text={a.text}/></td>
                         <td className='answeredBy'><p>{a.ans_by}</p>{' answered ' + calcTime(new Date(a.ans_date_time))}</td>
                     </tr>
                     <tr>
-                        <td colSpan={2}><CreateCommentRows userData = {userData} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
+                        <td colSpan={3}><CreateCommentRows userData = {userData} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
+                    </tr>
+                    <tr className='answerRowBottom'>
+                        <td colSpan={3}></td>
                     </tr>
                 </>)}
             </tbody>

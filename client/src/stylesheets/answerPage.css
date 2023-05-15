@@ -2,9 +2,9 @@
     padding-bottom: 1.5rem;
     border-bottom: 2px dotted; 
 }
-#questHeaderBottom td{
+/* #questHeaderBottom td{
     border-bottom: 1px solid rgb(190, 190, 190); 
-}
+} */
 .askQuestion{
     background-color: rgb(0, 103, 172);
     color: white;
@@ -70,12 +70,11 @@
 #answerQuestion{
     background-color: rgb(0, 103, 172);
     color: white;
-    padding: 1rem 2rem;
-    font-size: 1.3rem;
-    margin: 1rem;
+    font-size: 20px;
     float: left;
     right: 0;
     border-radius: 4px;
+    margin-left: 1rem;
 }
 #answerQuestion:hover {
     background-color: rgb(0, 82, 137);

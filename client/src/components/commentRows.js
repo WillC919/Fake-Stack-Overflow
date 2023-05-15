@@ -60,31 +60,34 @@ export default function CreateCommentRows({userData, listOfCommentIds, Attachmen
                     <td className="commentText commentTd" width="70%"><Format text = {c.text} commentBy = {c.commented_by} commentDate = {c.commented_date}/></td>
                     <td className="commentTd"></td>
                 </tr>
-            )} {userData.accType !== "Guest" && <tr>
-                <td width="15%"></td>
-                <td width="80%" colSpan={3}>
-                    <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setCommentIndex, AttachmentId, listOfComments, setListOfComments)}>
-                        <div>
-                            <div className="commentPost" style={{width: "90%"}}>
-                                <textarea id="commentPostText"  name="commentPostText" placeholder="Your details..." required></textarea>
+            )}  <tr>
+                    <td width="15%"></td>
+                    <td width="80%" className="commentTd" colSpan={3}>
+                        { userData.accType !== "Guest" &&
+                            <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setCommentIndex, AttachmentId, listOfComments, setListOfComments)}><div>
+                                <div className="commentPost" style={{width: "90%"}}>
+                                    <textarea className="commentPostText"  name="commentPostText" placeholder="Your details..." required></textarea>
+                                </div>
+                                <div className="commentPost" style={{width: "10%"}}>
+                                    <input className="commentPostSubmit"  type="Submit" defaultValue="Post Comment"></input>
+                                </div>
                             </div>
-                            <div className="commentPost" style={{width: "10%"}}>
-                                <input id="commentPostSubmit"  type="Submit" defaultValue="Post Comment"></input>
-                            </div>
+                            <span id = "invalidComment"></span>
+                            </form>
+                        }
+                        <div className="viewCommentBtn">
+                            <div><button className="curr">Page {commentIndex+1}</button></div>
+                            {commentIndex !== 0 && 
+                                <div><button className="prev" onClick={() => setCommentIndex(commentIndex-1)}>Prev</button></div>}
+                            {commentIndex < Math.floor((listOfComments.length-1)/3) && 
+                                <div><button className="next" onClick={() => setCommentIndex(commentIndex+1)}>Next</button></div>}
                         </div>
-                    </form>
-                    <span id = "invalidComment"></span>
-                    <div className="viewCommentBtn">
-                        <div><button className="curr">Page {commentIndex+1}</button></div>
-                        {commentIndex !== 0 && <div><button className="prev" onClick={() => setCommentIndex(commentIndex-1)}>Prev</button></div>}
-                        {commentIndex < Math.floor((listOfComments.length-1)/3) && <div><button className="next" onClick={() => setCommentIndex(commentIndex+1)}>Next</button></div>}
-                    </div>
-                </td>
-            </tr>}
+                    </td>
+                </tr>
             </tbody>
         </table> 
         :
-        <table id='commentRows' width="100%">
+        <table id='commentTable' width="100%">
             <tbody>
                 <tr className='commentRow'>
                     <td className='commentText'>loading comments...</td>
@@ -101,9 +104,9 @@ function handleClick(event, userData, setCommentIndex, AttachmentId, listOfComme
     const user = userData.user;
 
     let vaild = true;
-    if (userData.repuation < 50) {
+    if (userData.reputation < 50) {
         vaild = false;
-        document.getElementById("invalidComment").innerText = ">> Below reputation requirement to post comments!!";
+        document.getElementById("invalidComment").innerText = ">> Below 50pt reputation requirement to post comments!!";
     } else if (text.length === 0) {
         vaild = false;
         document.getElementById("invalidComment").innerText = ">> Needs a description!!";

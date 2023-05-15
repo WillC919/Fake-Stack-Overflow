@@ -4,16 +4,17 @@
     color: rgb(127, 127, 127);
 }
 .commentTd {
-    border-bottom: 1px solid rgb(190, 190, 190); 
+    border-top: 1px solid rgb(190, 190, 190);
+    padding: 1rem;
 }
 .commentPost {
     display: inline-block;
 }
-#commentPostText {
+.commentPostText {
     width: 90%;
     height: 1rem;
 }
-#commentPostSubmit {
+.commentPostSubmit {
     background-color: rgb(0, 103, 172);
     color: white;
     border: none;
@@ -30,6 +31,9 @@
     font-size: 0.8rem;
     color: rgb(127, 127, 127);
     text-align: center;
+}
+.commentVote button{
+    color: rgb(127, 127, 127);
 }
 #invalidComment {
     color: red;
