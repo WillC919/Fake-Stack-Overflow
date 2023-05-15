@@ -2,8 +2,8 @@ import '../stylesheets/fsoLeft.css';
 import axios from 'axios';
 
 export default function Left({userData, setUserData, pageIndex, setPageIndex, setQuestsData}) {
-    function reloadQuestions() {
-        axios.get('http://localhost:8000/questions')
+    async function reloadQuestions() {
+        await axios.get('http://localhost:8000/questions')
         .then(res => { setQuestsData(res.data); });
     }
     

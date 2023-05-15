@@ -1,5 +1,6 @@
 import '../stylesheets/answerPage.css'
 import '../stylesheets/questionPost.css'
+import '../stylesheets/answerRows.css';
 import CreateAnswerRows from './answerRows';
 import CreateCommentRows from './commentRows';
 import { useState, useEffect } from 'react';
@@ -9,7 +10,9 @@ export default function Answers({userData, setPageIndex, questionId}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
     const [answerIndex, setAnswerIndex] = useState(0);
-    const [votes, setVotes] = useState(null);
+    const [qvotes, setQvotes] = useState(0);
+    const [up, setUp] = useState(false);
+    const [down, setDown] = useState(false);
 
     useEffect(() => {
         async function fetchAnswerData(answerId){
@@ -31,7 +34,7 @@ export default function Answers({userData, setPageIndex, questionId}) {
                 answers.sort(function(a,b){return new Date(b.ans_date_time).getTime() - new Date(a.ans_date_time).getTime()});
                 setQuestion(response.data);
                 setAnswerList(answers);
-                setVotes(response.data.upvotes.length - response.data.downvotes.length);
+                setQvotes(response.data.upvotes.length - response.data.downvotes.length);
             } catch (error) {
                 console.log('Something went wrong');
                 setQuestion(false);
@@ -45,7 +48,12 @@ export default function Answers({userData, setPageIndex, questionId}) {
             id: questionId,
             userId: userData._id,
         }).then(res => {
-            setVotes(res);
+            if(question.upvotes.indexOf(userData._id) < 0 && !up){
+                setQvotes(v => v + 1);
+                setUp(true);
+                setDown(false);
+            }
+            
         }).catch(err => { console.log(err); });
     } 
 
@@ -54,7 +62,11 @@ export default function Answers({userData, setPageIndex, questionId}) {
             id: questionId,
             userId: userData._id,
         }).then(res => {
-            setVotes(res);
+            if(question.downvotes.indexOf(userData._id) < 0 && !down){
+                setQvotes(v => v - 1);
+                setDown(true);
+                setUp(false);
+            }
         }).catch(err => { console.log(err); })
     } 
 
@@ -66,7 +78,7 @@ export default function Answers({userData, setPageIndex, questionId}) {
                         <td rowSpan={2} width="10%" id="voteBtns">
                             {userData.accType !== "Guest" && 
                                 <button className = "voteBtn" onClick={upvote}>&#8593;</button>}
-                            <p>{votes + ' votes'}</p>
+                            <p>{qvotes + ' votes'}</p>
                             {userData.accType !== "Guest" && 
                                 <button className = "voteBtn" onClick={downvote}>&#8595;</button>} 
                         </td>
@@ -84,7 +96,19 @@ export default function Answers({userData, setPageIndex, questionId}) {
                     </tr>
                 </tbody>
             </table>
-            <CreateAnswerRows userData = {userData} setPageIndex = {setPageIndex} listOfAnswers = {answerList} answerIndex = {answerIndex}/>
+            <table id='answerRows' width="100%">
+                <tbody>
+                    {answerList.slice(answerIndex*5, answerIndex*5+5).map((a) => <>
+                        <CreateAnswerRows userData={userData} a = {a}/>
+                        <tr>
+                            <td colSpan={3}><CreateCommentRows userData = {userData} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
+                        </tr>
+                        <tr className='answerRowBottom'>
+                            <td colSpan={3}></td>
+                        </tr>
+                    </>)}
+                </tbody>
+            </table>
             <div className="viewBtn">
                 <div><button className="curr">Page {answerIndex+1}</button></div>
                 

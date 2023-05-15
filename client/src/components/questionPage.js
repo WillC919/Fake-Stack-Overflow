@@ -8,26 +8,16 @@ export default function Questions({userData, pageIndex, setPageIndex, setQuestio
     const [sortBy, setSortBy] = useState(0);
     
     
-    function reloadQuestions() {
-        axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); });
-        axios.get('http://localhost:8000/tags').then(res => { setTagsData(res.data); });
+    async function reloadQuestions() {
+        await axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); });
+        await axios.get('http://localhost:8000/tags').then(res => { setTagsData(res.data); });
     }
 
-    function filterByTag(tagId) {
-        axios.get(`http://localhost:8000/tag/:${tagId}`).then(res => {setQuestsData(res.data);})
-    }
-
-    function sortByActive() {
-        axios.get(`http://localhost:8000/sortActive`).then(res => {setQuestsData(res.data)});
-    }
     
-    function sortByUnanswered() {
-        axios.get(`http://localhost:8000/sortUnanswered`).then(res => {setQuestsData(res.data); });
-    }
 
     useEffect(() => { 
-        if (pageIndex === 0 && sortBy === 0) reloadQuestions(); 
-        if (pageIndex === 6) filterByTag(tagId);
+        if (pageIndex === 0) {setSortBy(0); setPageIndex(0); reloadQuestions()} 
+        if (pageIndex === 6) {setSortBy(3);}
     }, []);
 
     return (
@@ -43,15 +33,15 @@ export default function Questions({userData, pageIndex, setPageIndex, setQuestio
                         <td><p id="numOfQuestions">{questsData.length + ' Questions'}</p></td>
                         <td className="sortby">
                             <button id="newest" onClick={() => {setSortBy(0); setPageIndex(0); reloadQuestions();}}>Newest</button>
-                            <button id="active" onClick={() => {sortByActive(); setPageIndex(0);}}>Active</button>
-                            <button id="unanswered" onClick={() => {sortByUnanswered(); setPageIndex(0);}}>Unanswered</button>
+                            <button id="active" onClick={() => {setSortBy(1); setPageIndex(0);}}>Active</button>
+                            <button id="unanswered" onClick={() => {setSortBy(2); setPageIndex(0);}}>Unanswered</button>
                         </td>
                         <td></td>
                     </tr>
                 </tbody>
             </table>
 
-            <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} questIndex = {questIndex} setQuestionId={setQuestionId} tagsData={tagsData}/>
+            <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} setQuestsData = {setQuestsData} questIndex = {questIndex} setQuestionId={setQuestionId} tagsData={tagsData} tagId = {tagId}/>
             
             <div className="viewBtn">
                 <div><button className="curr">Page {questIndex+1}</button></div>

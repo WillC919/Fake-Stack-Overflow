@@ -103,39 +103,32 @@ app.get('/question/:qid/view', async function (req, res) {
 app.post('/question/upvote', async function (req, res) {
   try {
     const question = await Question.findById(req.body.id);
-    const user = await User.findById(req.body.userId);
-    console.log(question.downvotes.indexOf(req.body.userId));
+    // const user = await User.findById(req.body.userId);
     if (question.downvotes.indexOf(req.body.userId) >= 0) {
-      question.downvotes = question.downvotes.filter((id) => id != req.body.userId);
-      user.reputation += 5;
+      await Question.findByIdAndUpdate(req.body.id, {$pull: {downvotes: req.body.userId}});
+      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: 5}});
     }
-    console.log(question.upvotes.indexOf(req.body.userId));
     if (question.upvotes.indexOf(req.body.userId) < 0) {
-      question.upvotes.push(req.body.userId);
-      user.reputation += 5;
+      await Question.findByIdAndUpdate(req.body.id, {$push: {upvotes: req.body.userId}});
+      await User.findOneAndUpdate({questions: {$in: [req.body.id]}}, {$inc: {reputation: 5}});
     }
-
-    await question.save();
-    await user.save();
-    res.send(question.upvotes.length - question.downvotes.length);
+    res.send('success');
   } catch (error) { console.log(error); }
 });
 app.post('/question/downvote', async function (req, res) {
   try {
     const question = await Question.findById(req.body.id);
-    const user = await User.findById(req.body.userId);
-    if (question.upvotes.indexOf(req.body.userId)) { 
-      question.upvotes = question.upvotes.filter((id) => id != req.body.userId);
-      user.reputation -= 5;
+    // const user = await User.findById(req.body.userId);
+    if (question.upvotes.indexOf(req.body.userId) >= 0) {
+      await Question.findByIdAndUpdate(req.body.id, {$pull: {upvotes: req.body.userId}});
+      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: -10}});
+    }
+    if (question.downvotes.indexOf(req.body.userId) < 0) {
+      await Question.findByIdAndUpdate(req.body.id, {$push: {downvotes: req.body.userId}});
+      await User.findOneAndUpdate({questions: {$in: [req.body.id]}}, {$inc: {reputation: -10}});
     }
     
-    if (question.downvotes.indexOf(req.body.userId) < 0) { 
-      question.downvotes.push(req.body.userId);
-      user.reputation -= 5;
-    }
-    await question.save();
-    await user.save();
-    res.send(question.upvotes.length - question.downvotes.length);
+    res.send('success');
   } catch (error) { console.log(error); }
 });
 
@@ -148,10 +141,41 @@ app.get('/answers', async function (req, res) {
 app.get('/answer/:aid', async function (req, res) {
   try {
     // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
-    const result = await Answer.findById(req.params.aid.substring(1)).lean();
+    const result = await Answer.findById(req.params.aid.substring(1));
     res.send(result);
   } catch (error) { console.log('Was unable to find the Answer'); }
 });
+app.post('/answer/upvote', async function (req, res) {
+  try {
+    const answer = await Answer.findById(req.body.id);
+    // const user = await User.findById(req.body.userId);
+    if (answer.downvotes.indexOf(req.body.userId) >= 0) {
+      await Answer.findByIdAndUpdate(req.body.id, {$pull: {downvotes: req.body.userId}});
+      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: 5}});
+    }
+    if (answer.upvotes.indexOf(req.body.userId) < 0) {
+      await Answer.findByIdAndUpdate(req.body.id, {$push: {upvotes: req.body.userId}});
+      await User.findOneAndUpdate({answers: {$in: [req.body.id]}}, {$inc: {reputation: 5}});
+    }
+    res.send('success');
+  } catch (error) { console.log(error); }
+});
+app.post('/answer/downvote', async function (req, res) {
+  try {
+    const answer = await Answer.findById(req.body.id);
+    // const user = await User.findById(req.body.userId);
+    if (answer.upvotes.indexOf(req.body.userId) >= 0) {
+      await Answer.findByIdAndUpdate(req.body.id, {$pull: {upvotes: req.body.userId}});
+      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: -10}});
+    }
+    if (answer.downvotes.indexOf(req.body.userId) < 0) {
+      await Answer.findByIdAndUpdate(req.body.id, {$push: {downvotes: req.body.userId}});
+      await User.findOneAndUpdate({answers: {$in: [req.body.id]}}, {$inc: {reputation: -10}});
+    }
+    res.send('success');
+  } catch (error) { console.log(error); }
+});
+
 
 
 
@@ -210,15 +234,6 @@ app.post('/comment/:cid/upvote/:uid', async function (req, res) {
   try {
     // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
     const result = await Comment.findByIdAndUpdate(req.params.cid.substring(1), {$push: {upvotes: req.params.uid.substring(1)}}, {new:true}).lean();
-    console.log(result);
-    res.send(result);
-  } catch (error) { console.log('Was unable to find the Comment'); }
-});
-app.post('/comment/:cid/downvote/:uid', async function (req, res) {
-  try {
-    // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
-    const result = await Comment.findByIdAndUpdate(req.params.cid.substring(1), {$push: {downvotes: req.params.uid.substring(1)}}, {new:true}).lean();
-    console.log(result);
     res.send(result);
   } catch (error) { console.log('Was unable to find the Comment'); }
 });
@@ -416,7 +431,7 @@ app.post('/postAnswer', async function (req, res) {
 
   let ans = new Answer(answerDetail);
   ans = await ans.save();
-
+  await User.findByIdAndUpdate(req.body.user_id, {$push: {answers: ans._id}})
   try {
     //User.findByIdAndUpdate(req.body.user_id, {$push: {answers: ans._id}});
     let result = await Question.findByIdAndUpdate(req.body.qid, {$push: {answers: ans._id}}).lean();
@@ -428,7 +443,7 @@ app.post('/postComment', async function (req, res) {
   let commentDetail = {
     text: req.body.text,
     commented_by: req.body.com_by,
-    commented_date: new Date()
+    commented_date: new Date(),
   };
 
   let com = new Comment(commentDetail);

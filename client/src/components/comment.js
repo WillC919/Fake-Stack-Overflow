@@ -23,14 +23,7 @@ export default function CreateComment({c, userData}) {
             axios.post(`http://localhost:8000/comment/:${comment._id}/upvote/:${userData._id}`);
         }
     } 
-    async function downvote(comment){
-        let c = await axios.get(`http://localhost:8000/comment/:${comment._id}`)
-        if (c.data.downvotes.indexOf(userData._id) === -1){
-            setVotes(v => v - 1);
-            axios.post(`http://localhost:8000/comment/:${comment._id}/downvote/:${userData._id}`);
-        }
-    } 
-    
+
 
     return (
         <tr className='commentRow' key={c._id}>
@@ -39,8 +32,8 @@ export default function CreateComment({c, userData}) {
                     {userData.accType !== "Guest" && 
                         <button className = "voteBtn" onClick={()=> {upvote(c)}}>&#8593;</button>}
                     <span>{votes + ' votes'}</span>
-                    {userData.accType !== "Guest" && 
-                        <button className = "voteBtn" onClick={()=> {downvote(c)}}>&#8595;</button>} 
+                    {/* {userData.accType !== "Guest" && 
+                        <button className = "voteBtn" onClick={()=> {downvote(c)}}>&#8595;</button>}  */}
             </td>
             <td className="commentText commentTd" width="70%"><Format text = {c.text} commentBy = {c.commented_by} commentDate = {c.commented_date}/></td>
             <td className="commentTd"></td>

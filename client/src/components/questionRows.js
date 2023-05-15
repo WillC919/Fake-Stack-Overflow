@@ -1,7 +1,33 @@
+import { useEffect, useState } from 'react';
 import '../stylesheets/questionRows.css';
 import axios from 'axios';
 
-export default function CreateQuestionRows({setPageIndex, questsData, questIndex, setQuestionId, tagsData}) {
+export default function CreateQuestionRows({setPageIndex, sortBy, questsData, setQuestsData, questIndex, setQuestionId, tagsData, tagId}) {
+    useEffect(() => {
+        async function fetchQuestionData(){
+            const questions = await axios.get('http://localhost:8000/questions');
+            questions.data.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
+            setQuestsData(questions.data);
+        }
+        
+        async function sortByActive() {
+            await axios.get(`http://localhost:8000/sortActive`).then(res => {setQuestsData(res.data)});
+        }
+        
+        async function sortByUnanswered() {
+            await axios.get(`http://localhost:8000/sortUnanswered`).then(res => {setQuestsData(res.data); });
+        }
+
+        async function filterByTag(tagId) {
+            await axios.get(`http://localhost:8000/tag/:${tagId}`).then(res => {setQuestsData(res.data);})
+        }
+
+        if (sortBy === 0) fetchQuestionData();
+        if (sortBy === 1) sortByActive();
+        if (sortBy === 2) sortByUnanswered();
+        if (sortBy === 3) filterByTag(tagId);
+
+    })
 
     return (
         <table id="questionRows">
