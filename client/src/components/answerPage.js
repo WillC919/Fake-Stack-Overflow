@@ -9,11 +9,7 @@ export default function Answers({userData, setPageIndex, questionId}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
     const [answerIndex, setAnswerIndex] = useState(0);
-
-    const [votes, setVotes] = useState(0)
-    const [upvotes, setUpvotes] = useState(false);
-    const [downvotes, setDownvotes] = useState(false);
-
+    const [votes, setVotes] = useState(null);
 
     useEffect(() => {
         async function fetchAnswerData(answerId){
@@ -35,7 +31,7 @@ export default function Answers({userData, setPageIndex, questionId}) {
                 answers.sort(function(a,b){return new Date(b.ans_date_time).getTime() - new Date(a.ans_date_time).getTime()});
                 setQuestion(response.data);
                 setAnswerList(answers);
-                setVotes(response.data.votes);
+                setVotes(response.data.upvotes.length - response.data.downvotes.length);
             } catch (error) {
                 console.log('Something went wrong');
                 setQuestion(false);
@@ -44,19 +40,22 @@ export default function Answers({userData, setPageIndex, questionId}) {
         fetchQuestionData();
     }, [questionId]);
 
-    function upvote(){
-        if (upvotes === false){
-            setUpvotes(true)
-            setVotes(v => v+1);
-            axios.post(`http://localhost:8000/question/:${questionId}/upvote`);
-        }
+    function upvote() {
+        axios.post('http://localhost:8000/question/upvote', {
+            id: questionId,
+            userId: userData._id,
+        }).then(res => {
+            setVotes(res);
+        }).catch(err => { console.log(err); });
     } 
-    function downvote(){
-        if (downvotes === false){
-            setDownvotes(true)
-            setVotes(v => v-1);
-            axios.post(`http://localhost:8000/question/:${questionId}/downvote`);
-        }
+
+    function downvote() {
+        axios.post('http://localhost:8000/question/downvote', {
+            id: questionId,
+            userId: userData._id,
+        }).then(res => {
+            setVotes(res);
+        }).catch(err => { console.log(err); })
     } 
 
     return (question ? 

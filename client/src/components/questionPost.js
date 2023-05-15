@@ -7,7 +7,7 @@ export default function PostQuestion({userData, setPageIndex, questsData, setQue
             <div className="row">
                 <div className="askQuestCaptions">
                     <label htmlFor="askQuestTitle">Question Title*</label>
-                    <p>Limit the title to 100 characters or less</p>
+                    <p>Limit the title to 50 characters or less</p>
                 </div>
                 <div className="askQuestResponse">
                     <input type="text" id="askQuestTitle" name="askQuestTitle" placeholder="Your question..." required></input>
@@ -18,7 +18,7 @@ export default function PostQuestion({userData, setPageIndex, questsData, setQue
             <div className="row">
                 <div className="askQuestCaptions">
                     <label htmlFor="askQuestSum">Question Summary*</label>
-                    <p>add details</p>
+                    <p>Limit the summary to 140 characters or less</p>
                 </div>
                 <div className="askQuestResponse">
                     <textarea id="askQuestSum" name="askQuestSum" placeholder="Question summary..." required></textarea>
@@ -71,7 +71,7 @@ function handleClick(event, userData, setPageIndex, questsData, setQuestsData) {
     let vaild = true;
     if (title.length > 50) {
         vaild = false;
-        document.getElementById("questTitleError").innerText = ">> Title excceeds 100 character limit!!";
+        document.getElementById("questTitleError").innerText = ">> Title excceeds 50 character limit!!";
     } else if (title.length === 0) {
         vaild = false;
         document.getElementById("questTitleError").innerText = ">> Needs a title!!";

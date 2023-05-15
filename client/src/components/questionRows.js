@@ -1,4 +1,5 @@
 import '../stylesheets/questionRows.css';
+import axios from 'axios';
 
 export default function CreateQuestionRows({setPageIndex, questsData, questIndex, setQuestionId, tagsData}) {
 
@@ -10,7 +11,7 @@ export default function CreateQuestionRows({setPageIndex, questsData, questIndex
                         <td>
                             <p>{q.answers.length + ' answers'}</p>
                             <p>{q.views + ' views'}</p>      
-                            <p>{q.votes + ' votes'}</p>             
+                            <p>{(q.upvotes.length - q.downvotes.length) + ' votes'}</p>             
                         </td>
                         <td>
                             <button className='links' id={q._id} onClick={()=>{setQid(q._id, setPageIndex, setQuestionId)}}>{q.title}</button>
@@ -29,8 +30,16 @@ export default function CreateQuestionRows({setPageIndex, questsData, questIndex
     )
 }
 
+async function incQuestionView(qid) {
+    try {
+        await axios.get(`http://localhost:8000/question/:${qid}/view`);
+    } catch (error) {
+        console.log('Inc view count err');
+    }
+}
 
 function setQid(qid, setPageIndex, setQuestionId){
+    incQuestionView(qid);
     setPageIndex(3);
     setQuestionId(qid);
 }
