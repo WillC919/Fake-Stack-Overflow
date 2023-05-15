@@ -1,38 +1,62 @@
+import { useEffect, useState } from 'react';
 import '../stylesheets/answerRows.css';
-import CreateCommentRows from './commentRows';
+import axios from 'axios';
 
-export default function CreateAnswerRows({userData, listOfAnswers, answerIndex}) {
-    return (listOfAnswers ?
-        <table id='answerRows' width="100%">
-            <tbody>
-                {listOfAnswers.slice(answerIndex*5, answerIndex*5+5).map((a) => <>
-                    <tr key={a._id}>
-                        <td className="answerVote answerTd" width="10%">
-                            {userData.accType !== "Guest" && 
-                                <button className = "voteBtn" onClick={()=> {/*upvote(c._id)*/}}>&#8593;</button>}
-                            <p>{'Votes'}</p>
-                            {userData.accType !== "Guest" && 
-                                <button className = "voteBtn" onClick={()=> {/*downvote(c._id)*/}}>&#8595;</button>} 
-                        </td>
-                        <td className='answerText' width="75%"><Format text={a.text}/></td>
-                        <td className='answeredBy'><p>{a.ans_by}</p>{' answered ' + calcTime(new Date(a.ans_date_time))}</td>
-                    </tr>
-                    <tr>
-                        <td colSpan={3}><CreateCommentRows userData = {userData} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
-                    </tr>
-                    <tr className='answerRowBottom'>
-                        <td colSpan={3}></td>
-                    </tr>
-                </>)}
-            </tbody>
-        </table> :
-        <table id='answerRows' width="100%">
-            <tbody>
-                <tr className='answerRow'>
-                    <td className='answerText'>loading answers...</td>
-                </tr>
-            </tbody>
-        </table>
+export default function CreateAnswerRows({userData, a}) {
+    const [ansData, setAnsData] = useState(null);
+    const [votes, setVotes] = useState(0);
+    const [up, setUp] = useState(false);
+    const [down, setDown] = useState(false);
+
+    useEffect(() => {
+        async function fetchAnswerData(){
+            const ans = await axios.get(`http://localhost:8000/answer/:${a._id}`);
+            setAnsData(ans);
+            
+            setVotes(ans.data.upvotes.length - ans.data.downvotes.length);
+        }
+
+        fetchAnswerData();
+    })
+
+    function upvote() {
+        axios.post('http://localhost:8000/answer/upvote', {
+            id: a._id,
+            userId: userData._id,
+        }).then(res => {
+            if(ansData.upvotes.indexOf(userData._id) < 0 && !up){
+                setVotes(v => v + 1);
+                setUp(true);
+                setDown(false);
+            }
+            
+        }).catch(err => { console.log(err); });
+    } 
+
+    function downvote() {
+        axios.post('http://localhost:8000/answer/downvote', {
+            id: a._id,
+            userId: userData._id,
+        }).then(res => {
+            if(ansData.downvotes.indexOf(userData._id) < 0 && !down){
+                setVotes(v => v - 1);
+                setDown(true);
+                setUp(false);
+            }
+        }).catch(err => { console.log(err); })
+    } 
+    return (
+        <tr key={a._id}>
+            <td className="answerVote answerTd" width="10%">
+                {userData.accType !== "Guest" && 
+                    <button className = "voteBtn" onClick={upvote}>&#8593;</button>}
+                <p>{votes + ' Votes'}</p>
+                {userData.accType !== "Guest" && 
+                    <button className = "voteBtn" onClick={downvote}>&#8595;</button>} 
+            </td>
+            <td className='answerText' width="75%"><Format text={a.text}/></td>
+            <td className='answeredBy'><p>{a.ans_by}</p>{' answered ' + calcTime(new Date(a.ans_date_time))}</td>
+        </tr>
     )
 }
 

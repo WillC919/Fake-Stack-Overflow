@@ -6,6 +6,7 @@ import CreateComment from './comment';
 export default function CreateCommentRows({userData, listOfCommentIds, AttachmentId}) {
     const [commentIndex, setCommentIndex] = useState(0);
     const [listOfComments, setListOfComments] = useState(null);
+    const [user, setUser] = useState(userData)
     
     useEffect(() => {
         async function fetchCommentData(commentId) {
@@ -22,9 +23,16 @@ export default function CreateCommentRows({userData, listOfCommentIds, Attachmen
             const comments = await Promise.all(result);
             comments.sort(function(a,b) { return new Date(b.commented_date).getTime() - new Date(a.commented_date).getTime() });
             setListOfComments(comments);
+            
+        }
+
+        async function fetchUserData() {
+            const user = await axios.get(`http://localhost:8000/userId/:${userData._id}`);
+            setUser(user.data);
         }
 
         setCommentData();
+        fetchUserData();
     }, [listOfCommentIds]);
     
     return (listOfComments ?
@@ -47,7 +55,7 @@ export default function CreateCommentRows({userData, listOfCommentIds, Attachmen
                     <td width="15%"></td>
                     <td width="80%" className="commentTd" colSpan={3}>
                         { userData.accType !== "Guest" &&
-                            <form id='commentPost' onSubmit={(e) => handleClick(e, userData, setCommentIndex, AttachmentId, listOfComments, setListOfComments)}><div>
+                            <form id='commentPost' onSubmit={(e) => handleClick(e, user, setCommentIndex, AttachmentId, listOfComments, setListOfComments)}><div>
                                 <div className="commentPost" style={{width: "90%"}}>
                                     <textarea className="commentPostText"  name="commentPostText" placeholder="Your details..." required></textarea>
                                 </div>
@@ -85,6 +93,7 @@ function handleClick(event, userData, setCommentIndex, AttachmentId, listOfComme
 
     const text = event.target.commentPostText.value;
     const user = userData.user;
+    console.log(user)
 
     let vaild = true;
     if (userData.reputation < 50) {
