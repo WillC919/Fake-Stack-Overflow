@@ -33,25 +33,13 @@ export default function CreateCommentRows({userData, listOfCommentIds, Attachmen
 
         setCommentData();
         fetchUserData();
-    }, [listOfCommentIds]);
+    }, [listOfCommentIds, userData._id]);
     
     return (listOfComments ?
         <table id='commentTable' width="100%">
-            <tbody> {listOfComments.slice(commentIndex*3, commentIndex*3+3).map((c) =>
+            <tbody>{listOfComments.slice(commentIndex*3, commentIndex*3+3).map((c) =>
                 <CreateComment c={c} userData={userData}/>
-                // <tr className='commentRow' key={c._id}>
-                //     <td width="15%"></td>
-                //     <td className="commentVote commentTd" width="10%">
-                //             {userData.accType !== "Guest" && 
-                //                 <button className = "voteBtn" onClick={()=> {upvote(c)}}>&#8593;</button>}
-                //             <span>{votes + 'votes'}</span>
-                //             {userData.accType !== "Guest" && 
-                //                 <button className = "voteBtn" onClick={()=> {downvote(c)}}>&#8595;</button>} 
-                //     </td>
-                //     <td className="commentText commentTd" width="70%"><Format text = {c.text} commentBy = {c.commented_by} commentDate = {c.commented_date}/></td>
-                //     <td className="commentTd"></td>
-                // </tr>
-            )}  <tr>
+                )}<tr>
                     <td width="15%"></td>
                     <td width="80%" className="commentTd" colSpan={3}>
                         { userData.accType !== "Guest" &&
@@ -96,9 +84,9 @@ function handleClick(event, userData, setCommentIndex, AttachmentId, listOfComme
     console.log(user)
 
     let vaild = true;
-    if (userData.reputation < 50) {
+    if (userData.reputation < 50 && userData.accType !== 'Admin') {
         vaild = false;
-        document.getElementById("invalidComment").innerText = ">> Below 50pt reputation requirement to post comments!!";
+        document.getElementById("invalidComment").innerText = ">> Above 50pt reputation required to post comments!!";
     } else if (text.length === 0) {
         vaild = false;
         document.getElementById("invalidComment").innerText = ">> Needs a description!!";

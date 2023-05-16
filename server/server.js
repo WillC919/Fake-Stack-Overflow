@@ -8,6 +8,8 @@ const port = 8000;
 const session = require("express-session")
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
 app.listen(port, () => {
   console.log('Fake StackOverflow is now running');
@@ -82,38 +84,38 @@ app.get('/userId/:uid', async function (req, res) {
 app.post('/user/delete', async function (req, res) {
   try {
     const admin = await User.findById(req.body.id);
-    console.log(admin);
-    if (admin.accType === "Admin") { //Security Feature OwO
+    if (admin.accType === "Admin") {
       const userData = await User.findById(req.body.userId);
-      console.log(userData);
       
       let questList = userData.questions;
       let ansList = userData.answers;
-      let comList = userData.answers;
-      
-      // This goes through qid.answers and removes the answers in the array that matches the any of the ids in answers array
-      // const questListFromAns = Question.find({ _id: { $in: ansList } }).exec();
-      
-      const ansListFromQuest = Answer.find({ _id: { $in: questList } }).exec();
-      const comListFromAns = Comment.find({ _id: { $in: ansList } }).exec();
-      const comListFromQuest = Comment.find({ _id: { $in: questList } }).exec();
 
-      const asyncFunctions = [questListFromAns, ansListFromQuest, comListFromAns, comListFromQuest]
-      Promise.all(asyncFunctions);
+      await Question.updateMany(
+        { _id: { $in: questList } },
+        { $pull: { answers: { $in: ansList } } }
+      );
 
+      const questWithAnswers = await Question.find({ _id: { $in: questList } });
+      let ansListFromQuest = [];
+      questWithAnswers.forEach(q => { ansListFromQuest = ansListFromQuest.concat(q.answers); });
       ansList = [...ansList, ...ansListFromQuest];
-      comList = [...comList, ...comListFromAns, ...comListFromQuest];
 
-      Question.deleteMany({ _id: { $in: questList } });
-      Answer.deleteMany({ _id: { $in: ansList } });
-      Comment.deleteMany({ _id: { $in: comList } });
-      
-      User.deleteOne({ _id: req.body.userId });
+      await User.updateMany(
+        { answers: { $in: ansList } },
+        { $pull: { answers: { $in: ansList } } }
+      );
 
-      res.send("User is being removed");
-    }else res.send("User was not removed");
+      await Answer.deleteMany({ _id: { $in: ansList } });
+      await Question.deleteMany({ _id: { $in: questList } });
+      await User.deleteOne({ _id: req.body.userId });
+
+      res.send("User has been removed");
+    } else {
+      res.send("User was not removed");
+    }
   } catch (err) {
-    console.log(err)
+    console.log(err);
+    res.status(500).send("An error occurred");
   }
 });
 
@@ -224,8 +226,8 @@ app.post('/answer/downvote', async function (req, res) {
 
 
 app.get('/tags', async function (req, res) {
-  const tags = await Tag.find().lean();
-  res.json(tags);
+  const tags = await Tag.find();
+  res.send(tags);
 });
 app.get('/tag/:tid', async function (req, res) {
   try {
@@ -319,9 +321,11 @@ app.post('/find', async (req, res) => {
 
 app.post('/verify', async function (req, res) {
   try {
-    const result = await User.findOne({email: req.body.email, password: req.body.password});
-    if (result) res.send(true);
-    else res.send(false);
+    const result = await User.findOne({email: req.body.email});
+    bcrypt.compare(req.body.password, result.password, (err, result) => {
+      if (err) res.send(false);
+      else res.send(true);
+    })
   } catch (error) {
     res.send(false);
   }
@@ -338,19 +342,22 @@ app.post('/login', async function (req, res) {
 });
 app.post('/addUser', async function (req, res) {
   try {
-    let userDetail = {
-      email: (req.body.signUpEmail).toLowerCase(),
-      user: req.body.signUpUsername,
-      password: req.body.signUpPassword,
-      member_since: new Date(),
-    };
-  
-    let acc = new User(userDetail);
-    await acc.save();
-    req.session.userId = (req.body.signUpEmail).toLowerCase();
-    req.session.isAuthenticated = true;
-    res.redirect('http://localhost:3000/');
+    bcrypt.hash(req.body.signUpPassword, saltRounds, (err, hash) => {
+      if (err) console.log(err);
+      let acc = new User({
+        email: (req.body.signUpEmail).toLowerCase(),
+        user: req.body.signUpUsername,
+        password: hash,
+        member_since: new Date(),
+      });
+
+      acc.save();
+      req.session.userId = (req.body.signUpEmail).toLowerCase();
+      req.session.isAuthenticated = true;
+      res.redirect('http://localhost:3000/');
+    })    
   } catch (error) {
+    console.log(error)
     res.send(`<h1>Something went wrong. Please Try Again.</h1>`);
   }
 });
@@ -482,6 +489,31 @@ app.post('/postAnswer', async function (req, res) {
     res.send(result);
   } catch (error) { console.log('Was unable to find the Question'); }
 });
+app.post('/editanswer/:aid', async function (req, res) {
+  const result = await Answer.findByIdAndUpdate(req.params.aid.substring(1),
+    { 
+      $set: {
+        text: req.body.text,
+      },
+    },
+    { new: true }
+  );
+  await result.save();
+  try {
+    res.send(result);
+  } catch (error) { console.log('Was unable to edit the question'); }
+});
+app.post('/deleteanswer/:aid', async function (req, res) {
+  const answer = await Answer.findByIdAndRemove(req.params.aid.substring(1));
+  await User.updateOne({answers: {$in: req.params.aid.substring(1)}}, {$pull: {answers: req.params.aid.substring(1)}})
+  await Question.updateOne({answers: {$in: req.params.aid.substring(1)}}, {$pull: {answers: req.params.aid.substring(1)}})
+  const comments = answer.comments;
+  for(let i = 0; i < comments.length; i++){
+    const com = await Comment.findByIdAndRemove(comments[i]);
+  }
+  
+  res.send('Removed Success');
+})
 
 app.post('/postComment', async function (req, res) {
   let commentDetail = {

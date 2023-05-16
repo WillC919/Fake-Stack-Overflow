@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import '../stylesheets/answerRows.css';
 import axios from 'axios';
 
-export default function CreateAnswerRows({userData, a}) {
-    const [ansData, setAnsData] = useState(null);
+export default function CreateAnswerRows({userData, a, fromProfile, setFromProfile, setPageIndex, setAnsId}) {
+    const [ansData, setAnsData] = useState(a);
     const [votes, setVotes] = useState(0);
     const [up, setUp] = useState(false);
     const [down, setDown] = useState(false);
@@ -53,6 +53,8 @@ export default function CreateAnswerRows({userData, a}) {
                 <p>{votes + ' Votes'}</p>
                 {userData.accType !== "Guest" && 
                     <button className = "voteBtn" onClick={downvote}>&#8595;</button>} 
+                {fromProfile && (userData.answers.includes(a._id) || userData.accType === 'Admin')&&
+                    <button className = 'edit' onClick={()=>{setFromProfile(false); setAnsId(a._id); setPageIndex(11)}}>Edit/Delete Answer</button>}
             </td>
             <td className='answerText' width="75%"><Format text={a.text}/></td>
             <td className='answeredBy'><p>{a.ans_by}</p>{' answered ' + calcTime(new Date(a.ans_date_time))}</td>

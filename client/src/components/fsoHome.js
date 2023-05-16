@@ -10,9 +10,12 @@ export default function FakeStackOverflow({userData, setUserData}) {
   const [tagsData, setTagsData] = useState([]);
 
   useEffect(() => { 
-    axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); }); 
-    axios.get('http://localhost:8000/tags').then(res => { setTagsData(res.data); }); 
-  }, []);
+    async function fetchData(){
+      await axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); }); 
+      await axios.get('http://localhost:8000/tags').then(res => { setTagsData(res.data); }); 
+    }
+    
+  });
   
   return (
     <>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-export default function User({userData, setPageIndex, setQuestionId, setFromProfile}) {
+export default function User({userData, setPageIndex, setQuestionId, setFromProfile, setSubUser, isSubuser}) {
     const [questions, setQuestions] = useState([]);
     const [ansQuestions, setAnsQuestions] = useState([]);
     const [user, setUser] = useState(userData);
@@ -8,23 +8,24 @@ export default function User({userData, setPageIndex, setQuestionId, setFromProf
     useEffect(() => {
         async function fetchData(){
             try {
-            const user = await axios.get(`http://localhost:8000/userId/:${userData._id}`);
-            setUser(user.data);
-            const questionIds = await user.data.questions;
+            const u = await axios.get(`http://localhost:8000/userId/:${userData._id}`);
+            setUser(u.data);
+            const questionIds = await u.data.questions;
             const questionPromises = questionIds.map(q => fetchQuestionData(q));
             const questions = await Promise.all(questionPromises);
             questions.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
             setQuestions(questions);
 
-            const answerIds = await user.data.answers;
+            const answerIds = await u.data.answers;
             const ansPromises = answerIds.map(a => fetchAnsQuestData(a));
-            const answeredQ = await Promise.all(ansPromises);
-            // answeredQ.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()})
+            let answeredQ = await Promise.all(ansPromises);
+            answeredQ = answeredQ.filter((q, index, self) => index === self.findIndex((obj) => (obj._id === q._id)))
             setAnsQuestions(answeredQ);
+            
 
-        } catch (err) {
-            console.log('Please ask a question')
-        }
+            } catch (err) {
+                console.log(err)
+            }
         }
 
         async function fetchQuestionData(questionId){
@@ -104,6 +105,7 @@ export default function User({userData, setPageIndex, setQuestionId, setFromProf
                 </div>
 
                 <button className='links' id='editTagsLink' onClick={()=>{goToTags(setPageIndex)}}>View all tags created by you</button>
+                {isSubuser && <button id='goBack' onClick={()=>{setSubUser(null)}}>Back to admin</button>}
 
         </div>
     );

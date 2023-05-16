@@ -6,7 +6,7 @@ import CreateCommentRows from './commentRows';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Answers({userData, setPageIndex, questionId, fromProfile, setFromProfile}) {
+export default function Answers({userData, setPageIndex, questionId, fromProfile, setFromProfile, setAnsId}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
     const [answerIndex, setAnswerIndex] = useState(0);
@@ -36,7 +36,6 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
                     let arr = answers.filter(ans => userData.answers.includes(ans._id));
                     let arr2 = answers.filter(ans => !(userData.answers.includes(ans._id)));
                     answers = arr.concat(arr2);
-                    // setFromProfile(false);
                 }   
                 setQuestion(response.data);
                 setAnswerList(answers);
@@ -106,7 +105,7 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
             <table id='answerRows' width="100%">
                 <tbody>
                     {answerList.slice(answerIndex*5, answerIndex*5+5).map((a) => <>
-                        <CreateAnswerRows userData={userData} a = {a}/>
+                        <CreateAnswerRows userData={userData} a = {a} fromProfile = {fromProfile} setFromProfile = {setFromProfile} setPageIndex = {setPageIndex} setAnsId = {setAnsId}/>
                         <tr>
                             <td colSpan={3}><CreateCommentRows userData = {userData} listOfCommentIds={a.comments} AttachmentId = {a._id}/></td>
                         </tr>

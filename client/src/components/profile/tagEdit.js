@@ -3,18 +3,24 @@ import '../../stylesheets/tagSet.css';
 import '../../stylesheets/tagPage.css'
 import axios from 'axios';
 
-export default function TagEdit({userData, setPageIndex, questsData, setQuestHeader, setTagId}) {
+export default function TagEdit({userData, setPageIndex, questsData, setQuestHeader, setTagId, subUser, isSubuser, setIsSubuser}) {
     const [tagsData, setTagsData] = useState([]);
     
     useEffect(() => {
         async function fetchData(){
             try {
-                const user = await axios.get(`http://localhost:8000/userId/:${userData._id}`);
+                let user;
+                if (isSubuser){
+                    user = await axios.get(`http://localhost:8000/userId/:${subUser._id}`);
+                    setIsSubuser(false);
+                }else{
+                    user = await axios.get(`http://localhost:8000/userId/:${userData._id}`)
+                }
                 let tagPromises = await user.data.tags.map(t => fetchTagData(t));
                 let tagsData = await Promise.all(tagPromises);
                 setTagsData(tagsData);
             } catch (error) {
-                console.log('Error in fetching Tags');
+                console.log(error);
                 return null;
             }
         }
@@ -28,6 +34,7 @@ export default function TagEdit({userData, setPageIndex, questsData, setQuestHea
             }
         }
         fetchData();
+        
     }, [userData._id])
     return (
         <div>

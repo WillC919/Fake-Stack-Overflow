@@ -24,8 +24,8 @@ export default function Admin({userData, setSubUser, setPageIndex, setQuestionId
                 setQuestions(questions);
                 const answerIds = await u.data.answers;
                 const ansPromises = answerIds.map(a => fetchAnsQuestData(a));
-                const answeredQ = await Promise.all(ansPromises);
-                // answeredQ.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()})
+                let answeredQ = await Promise.all(ansPromises);
+                answeredQ = answeredQ.filter((q, index, self) => index === self.findIndex((obj) => (obj._id === q._id)))
                 setAnsQuestions(answeredQ);
             } catch (err) {
                 console.log(err)
@@ -113,7 +113,7 @@ export default function Admin({userData, setSubUser, setPageIndex, setQuestionId
                             ? <ul id="profileQuestion">
                                 {userList.map((u) => 
                                 (<li key={u._id}>
-                                    <button className='links' id={u._id} onClick={()=> setSubUser(u._id)}>{u.user}</button>
+                                    <button className='links' id={u._id} onClick={()=> setSubUser(u)}>{u.user}</button>
                                     <button className='deleteBtn' id={'delete'+u._id} onClick={()=> deleteUser(userData, u._id, userList, setUserList)}>Delete User</button>
                                 </li>)
                             )} 
