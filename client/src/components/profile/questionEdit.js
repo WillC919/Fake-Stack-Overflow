@@ -83,9 +83,9 @@ export default function QuestionEdit({userData, setPageIndex, questsData, setQue
             <br/>
             
             <div className="row" id="lastRow">
-                <input id="askQuestSubmit" type="Submit" defaultValue="Edit Question" onClick={() => setSubmitType('edit')}></input>
-                <input id="delQuestSubmit" type="Submit" defaultValue="Delete Question" onClick={() => setSubmitType('delete')}></input>
                 <p style={{color: 'red'}}>*Indicates mandatory fields</p>
+                <input id="askQuestSubmit" type="Submit" defaultValue="Edit Question" onClick={() => setSubmitType('edit')}></input>
+                <input id="delQuestSubmit" type="Submit" defaultValue="Delete Question" onClick={() => setSubmitType('delete')}></input>  
             </div>
         </form>
         :

@@ -12,7 +12,7 @@ var UsersSchema = new Schema({
     answers: [{type: Schema.Types.ObjectId, ref: 'Answers'}],
     tags: [{type: Schema.Types.ObjectId, ref: 'Tags'}],
     member_since: {type: Date, default: new Date()},
-    accType: {type: String, enum: ["Admin", "User", "Guest"], default: 'User'}
+    accType: {type: String, enum: ["Admin", "User"], default: 'User'}
 });
 
 UsersSchema.virtual('url').get(function () {

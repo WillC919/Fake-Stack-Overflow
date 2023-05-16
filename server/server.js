@@ -79,6 +79,43 @@ app.get('/userId/:uid', async function (req, res) {
     console.log(err)
   }
 });
+app.post('/user/delete', async function (req, res) {
+  try {
+    const admin = await User.findById(req.body.id);
+    console.log(admin);
+    if (admin.accType === "Admin") { //Security Feature OwO
+      const userData = await User.findById(req.body.userId);
+      console.log(userData);
+      
+      let questList = userData.questions;
+      let ansList = userData.answers;
+      let comList = userData.answers;
+      
+      // This goes through qid.answers and removes the answers in the array that matches the any of the ids in answers array
+      // const questListFromAns = Question.find({ _id: { $in: ansList } }).exec();
+      
+      const ansListFromQuest = Answer.find({ _id: { $in: questList } }).exec();
+      const comListFromAns = Comment.find({ _id: { $in: ansList } }).exec();
+      const comListFromQuest = Comment.find({ _id: { $in: questList } }).exec();
+
+      const asyncFunctions = [questListFromAns, ansListFromQuest, comListFromAns, comListFromQuest]
+      Promise.all(asyncFunctions);
+
+      ansList = [...ansList, ...ansListFromQuest];
+      comList = [...comList, ...comListFromAns, ...comListFromQuest];
+
+      Question.deleteMany({ _id: { $in: questList } });
+      Answer.deleteMany({ _id: { $in: ansList } });
+      Comment.deleteMany({ _id: { $in: comList } });
+      
+      User.deleteOne({ _id: req.body.userId });
+
+      res.send("User is being removed");
+    }else res.send("User was not removed");
+  } catch (err) {
+    console.log(err)
+  }
+});
 
 
 app.get('/questions', async function (req, res) {
@@ -142,6 +179,13 @@ app.get('/answer/:aid', async function (req, res) {
   try {
     // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
     const result = await Answer.findById(req.params.aid.substring(1));
+    res.send(result);
+  } catch (error) { console.log('Was unable to find the Answer'); }
+});
+app.get('/answer/:aid/question', async function (req, res) {
+  try {
+    // The .substring(1) in req.params.aid is requried because it reads the ":" as part of the id    
+    const result = await Question.findOne({answers: {$in: [req.params.aid.substring(1)]}});
     res.send(result);
   } catch (error) { console.log('Was unable to find the Answer'); }
 });

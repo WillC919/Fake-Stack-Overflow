@@ -10,8 +10,8 @@ export default function Left({userData, setUserData, pageIndex, setPageIndex, se
     return (
         <div id="left">
             { pageIndex === 7 ?     
-                <button className="leftnav" id="profile" onClick={() => setPageIndex(7)} style={{backgroundColor: '#b6b6b6'}}>Welcome, {userData.user}</button> :
-                <button className="leftnav" id="profile" onClick={() => setPageIndex(7)}>Welcome, {userData.user}</button>
+                <button className="leftnav" id="profileNav" onClick={() => setPageIndex(7)} style={{backgroundColor: '#b6b6b6'}}>Welcome, {userData.user}</button> :
+                <button className="leftnav" id="profileNav" onClick={() => setPageIndex(7)}>Welcome, {userData.user}</button>
             }
             { pageIndex === 0 ? 
                 <button className="leftnav" id="questions" onClick={() => {setPageIndex(0); reloadQuestions();}} style ={{backgroundColor: '#b6b6b6'}}>Questions</button> : 

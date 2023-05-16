@@ -6,7 +6,7 @@ import CreateCommentRows from './commentRows';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Answers({userData, setPageIndex, questionId}) {
+export default function Answers({userData, setPageIndex, questionId, fromProfile, setFromProfile}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
     const [answerIndex, setAnswerIndex] = useState(0);
@@ -30,13 +30,20 @@ export default function Answers({userData, setPageIndex, questionId}) {
                 const response = await axios.get(`http://localhost:8000/question/:${questionId}`);
                 const answerIds = response.data.answers;
                 const answerPromises = answerIds.map(fetchAnswerData);
-                const answers = await Promise.all(answerPromises);
+                let answers = await Promise.all(answerPromises);
                 answers.sort(function(a,b){return new Date(b.ans_date_time).getTime() - new Date(a.ans_date_time).getTime()});
+                if (fromProfile){
+                    let arr = answers.filter(ans => userData.answers.includes(ans._id));
+                    let arr2 = answers.filter(ans => !(userData.answers.includes(ans._id)));
+                    answers = arr.concat(arr2);
+                    // setFromProfile(false);
+                }   
                 setQuestion(response.data);
                 setAnswerList(answers);
+                console.log(response.data);
                 setQvotes(response.data.upvotes.length - response.data.downvotes.length);
             } catch (error) {
-                console.log('Something went wrong');
+                console.log(error);
                 setQuestion(false);
             }
         }

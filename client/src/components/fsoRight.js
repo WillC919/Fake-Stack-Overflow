@@ -18,6 +18,7 @@ export default function Right({userData, pageIndex, setPageIndex, questsData, se
     const [questionId, setQuestionId] = useState('');
     const [questHeader, setQuestHeader] = useState('All Questions');
     const [tagId, setTagId] = useState('');
+    const [fromProfile, setFromProfile] = useState(false);
    
     if (questHeader !== 'All Questions' && pageIndex === 0) setQuestHeader('All Questions');
     if (questHeader !== 'Search' && pageIndex === 5) setQuestHeader('Search');
@@ -31,11 +32,11 @@ export default function Right({userData, pageIndex, setPageIndex, questsData, se
                         
             { pageIndex === 2 && <PostQuestion userData = {userData} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData}/> }
             
-            { pageIndex === 3 && <Answers userData = {userData} setPageIndex = {setPageIndex} questionId={questionId}/> }
+            { pageIndex === 3 && <Answers userData = {userData} setPageIndex = {setPageIndex} questionId={questionId} fromProfile = {fromProfile} setFromProfile = {setFromProfile}/> }
             
             { pageIndex === 4 && <PostAnswer userData = {userData} setPageIndex = {setPageIndex} questionId={questionId}/> }
 
-            { pageIndex === 7 && <Profile userData = {userData} questsData = {questsData} setPageIndex = {setPageIndex} setQuestionId = {setQuestionId}/>}
+            { pageIndex === 7 && <Profile userData = {userData} setPageIndex = {setPageIndex} setQuestionId = {setQuestionId} setFromProfile = {setFromProfile}/>}
 
             { pageIndex === 8 && <QuestionEdit userData = {userData} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData} questionId = {questionId}/>}
 

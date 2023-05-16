@@ -11,9 +11,7 @@ export default function CreateComment({c, userData}) {
             let v = comment.data.upvotes.length - comment.data.downvotes.length;
             setVotes(v);
         }
-
         fetchData()
-
     })
 
     async function upvote(comment){
