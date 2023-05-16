@@ -8,6 +8,7 @@ export default function FakeStackOverflow({userData, setUserData}) {
   const [questsData, setQuestsData] = useState([]);
   const [questIndex, setQuestIndex] = useState(0);
   const [tagsData, setTagsData] = useState([]);
+  const [sortBy, setSortBy] = useState(0);
 
   useEffect(() => { 
     async function fetchData(){
@@ -19,8 +20,20 @@ export default function FakeStackOverflow({userData, setUserData}) {
   
   return (
     <>
-      <Header userData = {userData} setUserData = {setUserData} setQuestsData = {setQuestsData} setPageIndex = {setPageIndex}/>
-      <Main userData = {userData} setUserData = {setUserData} pageIndex = {pageIndex} setPageIndex = {setPageIndex} questsData = {questsData} setQuestsData = {setQuestsData} questIndex={questIndex} setQuestIndex={setQuestIndex} tagsData = {tagsData} setTagsData = {setTagsData}/>
+      <Header 
+        userData = {userData} setUserData = {setUserData} 
+        setQuestsData = {setQuestsData} 
+        setPageIndex = {setPageIndex}
+        sortBy = {sortBy} setSortBy = {setSortBy}
+      />
+      <Main 
+        userData = {userData} setUserData = {setUserData} 
+        pageIndex = {pageIndex} setPageIndex = {setPageIndex} 
+        questsData = {questsData} setQuestsData = {setQuestsData} 
+        questIndex ={questIndex} setQuestIndex ={setQuestIndex} 
+        tagsData = {tagsData} setTagsData = {setTagsData} 
+        sortBy = {sortBy} setSortBy = {setSortBy}
+      />
     </> 
   ); 
 }

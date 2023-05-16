@@ -6,6 +6,7 @@ var CommentsSchema = new Schema({
     text: {type: String, required: true},
     commented_by: {type: String, default: 'Anonyoums'},
     commented_date: {type: Date, default: new Date()},
+    
     upvotes: [{type: Schema.Types.ObjectId, ref: 'Users'}],
     downvotes: [{type: Schema.Types.ObjectId, ref: 'Users'}]
 });

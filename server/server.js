@@ -74,11 +74,11 @@ app.get('/user/:email', async function (req, res) {
   } catch (error) { console.log('Was unable to find the email'); }
 });
 app.get('/userId/:uid', async function (req, res) {
-  try{
+  try {
     const result = await User.findById(req.params.uid.substring(1));
     res.send(result);
-  }catch (err) {
-    console.log(err)
+  } catch (err) {
+    console.log("Unable to find user");
   }
 });
 app.post('/user/delete', async function (req, res) {
@@ -90,10 +90,7 @@ app.post('/user/delete', async function (req, res) {
       let questList = userData.questions;
       let ansList = userData.answers;
 
-      await Question.updateMany(
-        { _id: { $in: questList } },
-        { $pull: { answers: { $in: ansList } } }
-      );
+      await Question.updateMany({ answers: { $in: ansList } }, { $pull: { answers: { $in: ansList } } });
 
       const questWithAnswers = await Question.find({ _id: { $in: questList } });
       let ansListFromQuest = [];
@@ -324,12 +321,13 @@ app.post('/verify', async function (req, res) {
     const result = await User.findOne({email: req.body.email});
     bcrypt.compare(req.body.password, result.password, (err, result) => {
       if (err) res.send(false);
-      else res.send(true);
+      else res.send(result);
     })
   } catch (error) {
     res.send(false);
   }
 });
+
 app.post('/login', async function (req, res) {
   try {
     req.session.userId = (req.body.loginEmail).toLowerCase();

@@ -15,7 +15,7 @@ import TagEdit from './profile/tagEdit.js';
 import TagEdit2 from './profile/tagEdit2.js';
 import EditAnswer from './profile/answerEdit.js';
 
-export default function Right({userData, pageIndex, setPageIndex, questsData, setQuestsData, questIndex, setQuestIndex, tagsData, setTagsData}) {
+export default function Right({userData, pageIndex, setPageIndex, questsData, setQuestsData, questIndex, setQuestIndex, tagsData, setTagsData, sortBy, setSortBy}) {
     const [questionId, setQuestionId] = useState('');
     const [questHeader, setQuestHeader] = useState('All Questions');
     const [tagId, setTagId] = useState('');
@@ -30,7 +30,8 @@ export default function Right({userData, pageIndex, setPageIndex, questsData, se
     return (
         <div id="right">
             { (pageIndex === 0 || pageIndex === 5 || pageIndex === 6) 
-                && <Questions userData = {userData} pageIndex = {pageIndex} setPageIndex = {setPageIndex} setQuestionId = {setQuestionId} questHeader = {questHeader} questsData = {questsData} setQuestsData = {setQuestsData} questIndex={questIndex} setQuestIndex={setQuestIndex} tagsData = {tagsData} setTagsData = {setTagsData} tagId = {tagId}/> } 
+                && <Questions userData = {userData} pageIndex = {pageIndex} setPageIndex = {setPageIndex} setQuestionId = {setQuestionId} questHeader = {questHeader} questsData = {questsData} setQuestsData = {setQuestsData} questIndex={questIndex} setQuestIndex={setQuestIndex} tagsData = {tagsData} setTagsData = {setTagsData} tagId = {tagId}
+                sortBy = {sortBy} setSortBy = {setSortBy}/> } 
             
             { pageIndex === 1 && <Tags setPageIndex = {setPageIndex} questsData = {questsData} setQuestHeader = {setQuestHeader} tagsData = {tagsData} setTagId = {setTagId}/> }
                         

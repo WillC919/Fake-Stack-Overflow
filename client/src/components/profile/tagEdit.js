@@ -5,6 +5,7 @@ import axios from 'axios';
 
 export default function TagEdit({userData, setPageIndex, questsData, setQuestHeader, setTagId, subUser, isSubuser, setIsSubuser}) {
     const [tagsData, setTagsData] = useState([]);
+    const [questions, setQuestions] = useState(questsData)
     
     useEffect(() => {
         async function fetchData(){
@@ -19,6 +20,9 @@ export default function TagEdit({userData, setPageIndex, questsData, setQuestHea
                 let tagPromises = await user.data.tags.map(t => fetchTagData(t));
                 let tagsData = await Promise.all(tagPromises);
                 setTagsData(tagsData);
+
+                let q = await axios.get(`http://localhost:8000/questions`);
+                setQuestions(q.data);
             } catch (error) {
                 console.log(error);
                 return null;
@@ -51,9 +55,9 @@ export default function TagEdit({userData, setPageIndex, questsData, setQuestHea
                 {tagsData.map((t) =>
                     <div key={t._id} className="tag-blocks">
                         <button className='tags' id={t._id} onClick={() => filterByTag(t.name, t._id, setPageIndex, setQuestHeader, setTagId)}>{t.name}</button>
-                        <p>{countTag(t._id, questsData) + ' Questions'}</p>
-                        <button onClick={() => editTag(t._id, setTagId, userData, questsData, setPageIndex)}>Edit</button>
-                        <button onClick={() => deleteTag(t._id, userData, questsData, setPageIndex)}>Delete</button>
+                        <p>{countTag(t._id, questions) + ' Questions'}</p>
+                        <button onClick={() => editTag(t._id, setTagId, userData, questions, setPageIndex)}>Edit</button>
+                        <button onClick={() => deleteTag(t._id, userData, questions, setPageIndex)}>Delete</button>
                     </div>                   
                 )}
             </div>

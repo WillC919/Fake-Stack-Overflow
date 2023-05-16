@@ -4,22 +4,23 @@ import '../stylesheets/questionPage.css'
 import CreateQuestionRows from './questionRows.js'
 
 
-export default function Questions({userData, pageIndex, setPageIndex, setQuestionId, questHeader, questsData, setQuestsData, questIndex, setQuestIndex, tagsData, setTagsData, tagId}) {
-    const [sortBy, setSortBy] = useState(0);
+export default function Questions({userData, pageIndex, setPageIndex, setQuestionId, questHeader, questsData, setQuestsData, questIndex, setQuestIndex, tagsData, setTagsData, tagId, sortBy, setSortBy}) {
+    // const [sortBy, setSortBy] = useState(0);
     
     
-    async function reloadQuestions() {
-        await axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); });
+    async function reloadQuestAndTags() {
+        // await axios.get('http://localhost:8000/questions').then(res => { setQuestsData(res.data); });
         await axios.get('http://localhost:8000/tags').then(res => { setTagsData(res.data); });
     }
 
-    
-
     useEffect(() => { 
-        if (pageIndex === 0) {setSortBy(0); setPageIndex(0); reloadQuestions()} 
-        if (pageIndex === 6) {setSortBy(3);}
+        if (pageIndex === 0) {setSortBy(0); reloadQuestAndTags()}
+        if (pageIndex === 5) {setSortBy(4); console.log(questsData)}
+        if (pageIndex === 6) {setSortBy(3); }
     }, []);
 
+
+    
     return (
         <div>
             <table className="right" id="questionsTable" width="100%">
@@ -32,16 +33,16 @@ export default function Questions({userData, pageIndex, setPageIndex, setQuestio
                     <tr height="50px">
                         <td><p id="numOfQuestions">{questsData.length + ' Questions'}</p></td>
                         <td className="sortby">
-                            <button id="newest" onClick={() => {setSortBy(0); setPageIndex(0); reloadQuestions();}}>Newest</button>
-                            <button id="active" onClick={() => {setSortBy(1); setPageIndex(0);}}>Active</button>
-                            <button id="unanswered" onClick={() => {setSortBy(2); setPageIndex(0);}}>Unanswered</button>
+                            <button id="newest" onClick={() => {setSortBy(4); reloadQuestAndTags();}}>Newest</button>
+                            <button id="active" onClick={() => {setSortBy(1); reloadQuestAndTags();}}>Active</button>
+                            <button id="unanswered" onClick={() => {setSortBy(2); reloadQuestAndTags();}}>Unanswered</button>
                         </td>
                         <td></td>
                     </tr>
                 </tbody>
             </table>
 
-            <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} setQuestsData = {setQuestsData} questIndex = {questIndex} setQuestionId={setQuestionId} tagsData={tagsData} tagId = {tagId}/>
+            <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} setQuestsData = {setQuestsData} questIndex = {questIndex} setQuestionId={setQuestionId} tagsData={tagsData} tagId = {tagId} setSortBy = {setSortBy} questHeader ={questHeader}/>
             
             <div className="viewBtn">
                 <div><button className="curr">Page {questIndex+1}</button></div>

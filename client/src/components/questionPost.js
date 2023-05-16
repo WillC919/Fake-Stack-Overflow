@@ -1,9 +1,24 @@
 import '../stylesheets/questionPost.css';
 import axios from 'axios';
+import { useState, useEffect } from 'react';
 
 export default function PostQuestion({userData, setPageIndex, questsData, setQuestsData}) {
-    return (
-        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, userData, setPageIndex, questsData, setQuestsData)}> 
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        async function fetchUserData() {
+            try{
+                const response = await axios.get(`http://localhost:8000/userId/:${userData._id}`);
+                setUser(response.data);
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        fetchUserData();
+    })
+    
+    return ( user !== null ?
+        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, user, setPageIndex, questsData, setQuestsData)}> 
             <div className="row">
                 <div className="askQuestCaptions">
                     <label htmlFor="askQuestTitle">Question Title*</label>
@@ -43,7 +58,7 @@ export default function PostQuestion({userData, setPageIndex, questsData, setQue
                     <p>Add keywords separeted by whitespace</p>
                 </div>
                 <div className="askQuestResponse">
-                    <input type="text" id="askQuestTags" name="askQuestTags" placeholder="Add tags..." required></input>
+                    <input type="text" id="askQuestTags" name="askQuestTags" placeholder="Add tags..."></input>
                 </div>
                 <p className="invalidText" id="questTagsError"></p>
             </div>
@@ -55,6 +70,8 @@ export default function PostQuestion({userData, setPageIndex, questsData, setQue
                 <p style={{color: 'red'}}>*Indicates mandatory fields</p>
             </div>
         </form>
+        :
+        <div><h1>fetching user data please refresh</h1></div>
     );
 }
 
@@ -93,27 +110,29 @@ function handleClick(event, userData, setPageIndex, questsData, setQuestsData) {
         if (txtErrMsg !== "") vaild = false;
         document.getElementById("questTextError").innerText = txtErrMsg; 
     }
-
-    if (tags.length === 0) {
-        vaild = false;
-        document.getElementById("questTagsError").innerText = ">> Needs tags!!";
-    } else {
-        tags = tags.split(" ");
-        tags = tags.filter((value) => value !== "");
-        tags = tags.filter((item, index) => tags.indexOf(item) === index);
-
-        if (tags.length > 5) {
+    if (tags.length === 0) { tags = []; } 
+    else {
+        if (userData.reputation < 50 && userData.accType !== 'Admin') {
             vaild = false;
-            document.getElementById("questTagsError").innerText = ">> Excceded the 5 tags limit!!";
+            document.getElementById("questTagsError").innerText = ">> Need 50pt reputation to create tags!!";
         } else {
-            for (const tag of tags) { 
-                if (tag.length > 10) { 
-                    vaild = false;
-                    document.getElementById("questTagsError").innerText = ">> All tags must not be longer than 10 characters!!";
-                    break;
+            tags = tags.split(" ");
+            tags = tags.filter((value) => value !== "");
+            tags = tags.filter((item, index) => tags.indexOf(item) === index);
+    
+            if (tags.length > 5) {
+                vaild = false;
+                document.getElementById("questTagsError").innerText = ">> Excceded the 5 tags limit!!";
+            } else {
+                for (const tag of tags) { 
+                    if (tag.length > 10) { 
+                        vaild = false;
+                        document.getElementById("questTagsError").innerText = ">> All tags must not be longer than 10 characters!!";
+                        break;
+                    }
                 }
+                if (vaild) { document.getElementById("questTagsError").innerText = ""; }
             }
-            if (vaild) { document.getElementById("questTagsError").innerText = ""; }
         }
     }
 

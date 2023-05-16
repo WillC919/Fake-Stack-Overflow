@@ -67,3 +67,23 @@
 .deleteBtn:active {
     background-color: rgb(123, 0, 0);
 }
+#goBack {
+    background-color: rgb(0, 103, 172);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 10px;
+    float: right;
+    font-size: 20px;
+}
+#goBack:hover {
+    background-color: rgb(0, 82, 137);
+}
+#goBack:active {
+    background-color: rgb(76, 102, 119);
+}
+.formDelete {
+    float: right;
+    width: 50%;
+}

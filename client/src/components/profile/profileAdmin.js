@@ -14,8 +14,8 @@ export default function Admin({userData, setSubUser, setPageIndex, setQuestionId
                 setUser(u.data);
                 
                 let listOfUsers = await axios.get("http://localhost:8000/users/");
-                listOfUsers = listOfUsers.data.filter(u => u.accType !== "Admin");
-                setUserList(listOfUsers);
+                //listOfUsers = listOfUsers.data.filter(u => u.accType !== "Admin");
+                setUserList(listOfUsers.data);
                 
                 const questionIds = await u.data.questions;
                 const questionPromises = questionIds.map(q => fetchQuestionData(q));
@@ -114,7 +114,9 @@ export default function Admin({userData, setSubUser, setPageIndex, setQuestionId
                                 {userList.map((u) => 
                                 (<li key={u._id}>
                                     <button className='links' id={u._id} onClick={()=> setSubUser(u)}>{u.user}</button>
-                                    <button className='deleteBtn' id={'delete'+u._id} onClick={()=> deleteUser(userData, u._id, userList, setUserList)}>Delete User</button>
+                                    <form className="formDelete" action="http://localhost:8000/logout" method="post" onSubmit={(e) => {deleteUser(e, userData, u._id, userList, setUserList)}}>
+                                        <button className='deleteBtn' id={'delete'+u._id} type="Submit">Delete User</button>
+                                    </form>
                                 </li>)
                             )} 
                             </ul>
@@ -140,12 +142,14 @@ async function handleClick2(qid, setPageIndex, setQuestionId, setFromProfile){
 function goToTags(setPageIndex){
     setPageIndex(9)
 }
-function deleteUser(userData, userId, userList, setUserList) {
+function deleteUser(e, userData, userId, userList, setUserList) {
+    e.preventDefault();
     axios.post('http://localhost:8000/user/delete', {
         id: userData._id,
         userId: userId
     }).then(res => {
         setUserList(userList.filter(u => u._id !== userId));
+        e.target.submit();
     }).catch(err => { console.log(err); });    
 }
 
