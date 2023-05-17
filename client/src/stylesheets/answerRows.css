@@ -1,0 +1,12 @@
+.answerText {
+    padding: 1rem;
+}
+.answerRowBottom td { 
+    border-bottom: 2px dotted;
+}
+.answeredBy p{
+    color: green;
+}
+.answerVote {
+    text-align: center;
+}

@@ -1,0 +1,88 @@
+#answersTable {
+    padding-bottom: 1.5rem;
+    border-bottom: 2px dotted; 
+}
+/* #questHeaderBottom td{
+    border-bottom: 1px solid rgb(190, 190, 190); 
+} */
+.askQuestion{
+    background-color: rgb(0, 103, 172);
+    color: white;
+    padding: 1rem 2rem;
+    font-size: 1.3rem;
+    margin-left: 30%;
+    float: left;
+    right: 0;
+    border-radius: 4px;
+}
+.askQuestion:hover{
+    background-color: rgb(0, 82, 137);
+}
+.askQuestion:active{
+    background-color: rgb(76, 102, 119);
+}
+#voteBtns {
+    margin: auto;
+    text-align: center;
+}
+.voteBtn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    margin: 0;
+    padding: 0;
+    font-size: 30px;
+    font-weight: bolder;
+}
+.voteBtn:hover {
+    color: rgb(0, 103, 172);
+}
+.voteBtn:active {
+    color: rgb(76, 102, 119);
+}
+
+#answersTable td{
+    padding: 1rem;
+}
+#askedBy p{
+    color: red;
+}
+
+#numOfAns {
+    font-weight: bold;
+    /* width: 20%; */
+    text-align: center;
+    font-size: 120%;
+}
+
+#questTitle {
+    font-weight: bold;
+    /* width: 55%; */
+    font-size: 130%;
+}
+
+#numOfViews {
+    font-weight: bold;
+    text-align: center;
+    font-size: 120%;
+}
+
+#answerQuestion{
+    background-color: rgb(0, 103, 172);
+    color: white;
+    font-size: 20px;
+    float: left;
+    right: 0;
+    border-radius: 4px;
+    margin-left: 1rem;
+}
+#answerQuestion:hover {
+    background-color: rgb(0, 82, 137);
+}
+#answerQuestion:active {
+    background-color: rgb(76, 102, 119);
+}
+.tagsPin {
+    margin: 15px 10px 0px 0;
+    padding: 5px;
+}

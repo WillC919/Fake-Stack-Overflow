@@ -1,0 +1,40 @@
+.tag-blocks{
+    width: 13%;
+    min-height: 50px;
+    display: inline-block;
+    border: 2px dashed;
+    overflow: auto;
+    text-align: center;
+    padding: 15px 5px 5px 5px; 
+    margin: 15px 9%;
+    word-break: break-all;
+}
+.tag-blocks a{
+    color: rgb(0, 137, 234);
+    font-size: 1.05rem;
+    text-align: center;
+    margin: auto;
+    text-decoration: underline;
+}
+.tag-blocks p{
+    font-size: 1.05rem;
+    text-align: center;
+    margin: auto;
+}
+
+.tags {
+    background: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    color: rgb(0, 115, 197);
+    cursor: pointer;
+    font-size: 1.1rem;
+}
+.tags:hover {
+    cursor: pointer;
+    color: rgb(0, 149, 255);
+}
+.tags:active {
+    color: rgb(0, 89, 152);
+}

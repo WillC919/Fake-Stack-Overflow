@@ -1,0 +1,35 @@
+#header {
+    display: block;
+    position: static;
+    height: 70px;
+    padding-bottom: 2rem;
+}
+
+#banner{ 
+    display: flex;
+    position: fixed;
+    justify-content: space-between;
+    background-color: rgb(42, 42, 42);
+    border-color: rgb(36, 36, 36);
+    box-shadow: 0px 0px 3px 1px rgb(30, 30, 30);
+    border-bottom-style: solid;
+    width: 100%;
+    padding: 2rem 0rem;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+#header h1{
+    color: darkorange;
+    text-align: center;
+    margin: 0px auto;
+    font-size: 2rem;
+}
+
+#searchbar{
+    position: absolute;
+    width: 20%;
+    /* height: 2rem; */
+    top: auto;
+    right: 12vb;
+}
