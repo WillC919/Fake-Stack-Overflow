@@ -38,7 +38,7 @@ export default function CreateCommentRows({userData, listOfCommentIds, Attachmen
     return (listOfComments ?
         <table id='commentTable' width="100%">
             <tbody>{listOfComments.slice(commentIndex*3, commentIndex*3+3).map((c) =>
-                <CreateComment c={c} userData={userData}/>
+                <CreateComment key={c._id} c={c} userData={userData}/>
                 )}<tr>
                     <td width="15%"></td>
                     <td width="80%" className="commentTd" colSpan={3}>

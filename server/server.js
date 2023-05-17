@@ -22,7 +22,6 @@ let User = require('./models/users');
 let Comment = require('./models/comments');
 
 let mongoose = require('mongoose');
-const { after } = require('node:test');
 let mongoDB = "mongodb://127.0.0.1:27017/fake_so";
 mongoose.connect(mongoDB, {useNewUrlParser: true, useUnifiedTopology: true});
 
@@ -167,32 +166,39 @@ app.get('/question/:qid/view', async function (req, res) {
 app.post('/question/upvote', async function (req, res) {
   try {
     const question = await Question.findById(req.body.id);
-    // const user = await User.findById(req.body.userId);
-    if (question.downvotes.indexOf(req.body.userId) >= 0) {
-      await Question.findByIdAndUpdate(req.body.id, {$pull: {downvotes: req.body.userId}});
-      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: 5}});
+    const user = await User.findById(req.body.userId);
+    if (user.reputation >= 50 || user.accType === 'Admin'){
+      if (question.downvotes.indexOf(req.body.userId) >= 0) {
+        await Question.findByIdAndUpdate(req.body.id, {$pull: {downvotes: req.body.userId}});
+        // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: 5}});
+      }
+      if (question.upvotes.indexOf(req.body.userId) < 0) {
+        await Question.findByIdAndUpdate(req.body.id, {$push: {upvotes: req.body.userId}});
+        await User.findOneAndUpdate({questions: {$in: [req.body.id]}}, {$inc: {reputation: 5}});
+      }
+      res.send('success');
+    }else{
+      res.send('error');
     }
-    if (question.upvotes.indexOf(req.body.userId) < 0) {
-      await Question.findByIdAndUpdate(req.body.id, {$push: {upvotes: req.body.userId}});
-      await User.findOneAndUpdate({questions: {$in: [req.body.id]}}, {$inc: {reputation: 5}});
-    }
-    res.send('success');
   } catch (error) { console.log(error); }
 });
 app.post('/question/downvote', async function (req, res) {
   try {
     const question = await Question.findById(req.body.id);
-    // const user = await User.findById(req.body.userId);
-    if (question.upvotes.indexOf(req.body.userId) >= 0) {
+    const user = await User.findById(req.body.userId);
+    if(user.reputation >= 50 || user.accType === 'Admin'){
+      if (question.upvotes.indexOf(req.body.userId) >= 0) {
       await Question.findByIdAndUpdate(req.body.id, {$pull: {upvotes: req.body.userId}});
       // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: -10}});
+      }
+      if (question.downvotes.indexOf(req.body.userId) < 0) {
+        await Question.findByIdAndUpdate(req.body.id, {$push: {downvotes: req.body.userId}});
+        await User.findOneAndUpdate({questions: {$in: [req.body.id]}}, {$inc: {reputation: -10}});
+      }
+      res.send('success');
+    } else {
+      res.send('error');
     }
-    if (question.downvotes.indexOf(req.body.userId) < 0) {
-      await Question.findByIdAndUpdate(req.body.id, {$push: {downvotes: req.body.userId}});
-      await User.findOneAndUpdate({questions: {$in: [req.body.id]}}, {$inc: {reputation: -10}});
-    }
-    
-    res.send('success');
   } catch (error) { console.log(error); }
 });
 
@@ -219,31 +225,39 @@ app.get('/answer/:aid/question', async function (req, res) {
 app.post('/answer/upvote', async function (req, res) {
   try {
     const answer = await Answer.findById(req.body.id);
-    // const user = await User.findById(req.body.userId);
-    if (answer.downvotes.indexOf(req.body.userId) >= 0) {
-      await Answer.findByIdAndUpdate(req.body.id, {$pull: {downvotes: req.body.userId}});
-      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: 5}});
+    const user = await User.findById(req.body.userId);
+    if(user.reputation >= 50 || user.accType === 'Admin'){
+      if (answer.downvotes.indexOf(req.body.userId) >= 0) {
+        await Answer.findByIdAndUpdate(req.body.id, {$pull: {downvotes: req.body.userId}});
+        // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: 5}});
+      }
+      if (answer.upvotes.indexOf(req.body.userId) < 0) {
+        await Answer.findByIdAndUpdate(req.body.id, {$push: {upvotes: req.body.userId}});
+        await User.findOneAndUpdate({answers: {$in: [req.body.id]}}, {$inc: {reputation: 5}});
+      }
+      res.send('success');
+    } else {
+      res.send('error')
     }
-    if (answer.upvotes.indexOf(req.body.userId) < 0) {
-      await Answer.findByIdAndUpdate(req.body.id, {$push: {upvotes: req.body.userId}});
-      await User.findOneAndUpdate({answers: {$in: [req.body.id]}}, {$inc: {reputation: 5}});
-    }
-    res.send('success');
   } catch (error) { console.log(error); }
 });
 app.post('/answer/downvote', async function (req, res) {
   try {
     const answer = await Answer.findById(req.body.id);
-    // const user = await User.findById(req.body.userId);
-    if (answer.upvotes.indexOf(req.body.userId) >= 0) {
-      await Answer.findByIdAndUpdate(req.body.id, {$pull: {upvotes: req.body.userId}});
-      // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: -10}});
+    const user = await User.findById(req.body.userId);
+    if(user.reputation >= 50 || user.accType === 'Admin'){
+      if (answer.upvotes.indexOf(req.body.userId) >= 0) {
+        await Answer.findByIdAndUpdate(req.body.id, {$pull: {upvotes: req.body.userId}});
+        // await User.findByIdAndUpdate(req.body.userId, {$inc: {reputation: -10}});
+      }
+      if (answer.downvotes.indexOf(req.body.userId) < 0) {
+        await Answer.findByIdAndUpdate(req.body.id, {$push: {downvotes: req.body.userId}});
+        await User.findOneAndUpdate({answers: {$in: [req.body.id]}}, {$inc: {reputation: -10}});
+      }
+      res.send('success');
+    } else {
+      res.send('error')
     }
-    if (answer.downvotes.indexOf(req.body.userId) < 0) {
-      await Answer.findByIdAndUpdate(req.body.id, {$push: {downvotes: req.body.userId}});
-      await User.findOneAndUpdate({answers: {$in: [req.body.id]}}, {$inc: {reputation: -10}});
-    }
-    res.send('success');
   } catch (error) { console.log(error); }
 });
 
@@ -274,7 +288,7 @@ app.get('/tag/tid/:tid', async function (req, res) {
 });
 app.post('/edittag/:tid', async function (req, res) {
   try {
-    const tag = await Tag.findByIdAndUpdate(req.params.tid.substring(1), {name: req.body.name});
+    await Tag.findByIdAndUpdate(req.params.tid.substring(1), {name: req.body.name});
     res.send('Update tag success');
   } catch (error) { console.log('Was unable to update tag'); }
 });
@@ -540,7 +554,7 @@ app.post('/deleteanswer/:aid', async function (req, res) {
   await Question.updateOne({answers: {$in: req.params.aid.substring(1)}}, {$pull: {answers: req.params.aid.substring(1)}})
   const comments = answer.comments;
   for(let i = 0; i < comments.length; i++){
-    const com = await Comment.findByIdAndRemove(comments[i]);
+    await Comment.findByIdAndRemove(comments[i]);
   }
   
   res.send('Removed Success');
@@ -571,8 +585,10 @@ app.post('/postComment', async function (req, res) {
 
 
 
-app.get('/sortActive', async function (req, res) {
-  const result = await Question.find().populate('answers').sort({'answers.ans_date_time': -1}).exec();
+app.post('/sortActive', async function (req, res) {
+  //const result = await Question.find().populate('answers').sort({'answers.ans_date_time': -1}).exec();
+  const questIds = (req.body.dataset).map(q => q._id);
+  const result = await Question.find({_id: {$in: questIds}}).populate('answers').sort({'answers.ans_date_time': -1}).exec();
   result.sort((a, b) => {
     const dateA = a.answers.length !== 0 ? a.answers[a.answers.length-1].ans_date_time : 0;
     const dateB = b.answers.length !== 0 ? b.answers[b.answers.length-1].ans_date_time : 0;
@@ -589,13 +605,10 @@ app.get('/sortUnanswered', async function (req, res) {
 })
 
 
-
-
-
 // close mongoose connection
 process.on('SIGINT', () => {
   if (db) {
-    db.close().then((result) => console.log('DB connection closed')).catch((err) => console.log(err));
+    db.close().then(() => console.log('DB connection closed')).catch((err) => console.log(err));
   }
   console.log('Server closed. Database instance disconnected.');
   //Server closed. Database instance disconnected

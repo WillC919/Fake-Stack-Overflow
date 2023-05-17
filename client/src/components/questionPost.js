@@ -2,7 +2,7 @@ import '../stylesheets/questionPost.css';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 
-export default function PostQuestion({userData, setPageIndex, questsData, setQuestsData}) {
+export default function PostQuestion({userData, setPageIndex, questsData, setQuestsData, tagsData}) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ export default function PostQuestion({userData, setPageIndex, questsData, setQue
     })
     
     return ( user !== null ?
-        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, user, setPageIndex, questsData, setQuestsData)}> 
+        <form id='askQuestionForum' name="askQuestionForum" onSubmit={(e) => handleClick(e, user, setPageIndex, questsData, setQuestsData, tagsData)}> 
             <div className="row">
                 <div className="askQuestCaptions">
                     <label htmlFor="askQuestTitle">Question Title*</label>
@@ -76,7 +76,7 @@ export default function PostQuestion({userData, setPageIndex, questsData, setQue
 }
 
 
-function handleClick(event, userData, setPageIndex, questsData, setQuestsData) {
+function handleClick(event, userData, setPageIndex, questsData, setQuestsData, tagsData) {
     event.preventDefault();
 
     const title = event.target.askQuestTitle.value;
@@ -110,29 +110,31 @@ function handleClick(event, userData, setPageIndex, questsData, setQuestsData) {
         if (txtErrMsg !== "") vaild = false;
         document.getElementById("questTextError").innerText = txtErrMsg; 
     }
-    if (tags.length === 0) { tags = []; } 
-    else {
-        if (userData.reputation < 50 && userData.accType !== 'Admin') {
+    if (tags.length === 0) {
+        vaild = false;
+        document.getElementById("questTagsError").innerText = ">> Need a tag!!";
+    } else {
+        tags = tags.split(" ");
+        tags = tags.filter((value) => value !== "");
+        tags = tags.filter((item, index) => tags.indexOf(item) === index);
+        
+        if (tags.length > 5) {
             vaild = false;
-            document.getElementById("questTagsError").innerText = ">> Need 50pt reputation to create tags!!";
+            document.getElementById("questTagsError").innerText = ">> Excceded the 5 tags limit!!";
         } else {
-            tags = tags.split(" ");
-            tags = tags.filter((value) => value !== "");
-            tags = tags.filter((item, index) => tags.indexOf(item) === index);
-    
-            if (tags.length > 5) {
-                vaild = false;
-                document.getElementById("questTagsError").innerText = ">> Excceded the 5 tags limit!!";
-            } else {
-                for (const tag of tags) { 
-                    if (tag.length > 10) { 
-                        vaild = false;
-                        document.getElementById("questTagsError").innerText = ">> All tags must not be longer than 10 characters!!";
-                        break;
-                    }
+            let tagNames = tagsData.map(t => t.name);
+            for (const tag of tags) { 
+                if (tag.length > 10) { 
+                    vaild = false;
+                    document.getElementById("questTagsError").innerText = ">> All tags must not be longer than 10 characters!!";
+                    break;
+                } else if (userData.reputation < 50 && tagNames.indexOf(tag) < 0 && userData.accType !== "Admin") {
+                    vaild = false;
+                    document.getElementById("questTagsError").innerText = ">> You need above 50pt reputation to create tags!!";
                 }
-                if (vaild) { document.getElementById("questTagsError").innerText = ""; }
             }
+
+            if (vaild) { document.getElementById("questTagsError").innerText = ""; }
         }
     }
 

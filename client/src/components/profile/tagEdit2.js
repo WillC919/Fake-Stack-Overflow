@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios, { Axios } from 'axios';
 
-export default function TagEdit2({userData, setPageIndex, questsData, tagId}) {
+export default function TagEdit2({setPageIndex, tagId}) {
     const [tagName, setTagName] = useState('')
     useEffect(() => {
         async function fetchTagName() {
@@ -17,7 +17,7 @@ export default function TagEdit2({userData, setPageIndex, questsData, tagId}) {
     })
     return (
         <form onSubmit={(e) => editTag(e, tagId, setPageIndex)}>
-            <label for="tagname">Edit Tag Name:</label>
+            <label htmlFor="tagname">Edit Tag Name:</label>
             <input type="text" id="tagname" name="tagname" defaultValue={tagName}/>
             <input type="submit" value="Submit"/>
         </form> 
@@ -43,6 +43,7 @@ function editTag(e, tagId, setPageIndex){
         try{
             axios.post(`http://localhost:8000/edittag/:${tagId}`,  {name: tag}).then( res => {
                 // setTagsData()
+                console.log(res)
                 alert('successful');
                 setPageIndex(7)
             })

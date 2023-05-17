@@ -114,7 +114,14 @@ export default function Admin({userData, setSubUser, setPageIndex, setQuestionId
                                 {userList.map((u) => 
                                 (<li key={u._id}>
                                     <button className='links' id={u._id} onClick={()=> setSubUser(u)}>{u.user}</button>
-                                    <form className="formDelete" action="http://localhost:8000/logout" method="post" onSubmit={(e) => {deleteUser(e, userData, u._id, userList, setUserList)}}>
+                                    <form className="formDelete" action="http://localhost:8000/logout" method="post" onSubmit={(e) => {
+                                        e.preventDefault();
+                                        if (window.confirm('Delete the user?')) {
+                                           deleteUser(e, userData, u._id, userList, setUserList);
+                                        } else {
+                                            console.log("ok");
+                                        }
+                                    }}>
                                         <button className='deleteBtn' id={'delete'+u._id} type="Submit">Delete User</button>
                                     </form>
                                 </li>)
@@ -143,14 +150,14 @@ function goToTags(setPageIndex){
     setPageIndex(9)
 }
 function deleteUser(e, userData, userId, userList, setUserList) {
-    e.preventDefault();
     axios.post('http://localhost:8000/user/delete', {
         id: userData._id,
         userId: userId
     }).then(res => {
+        console.log(res)
         setUserList(userList.filter(u => u._id !== userId));
-        e.target.submit();
-    }).catch(err => { console.log(err); });    
+        if (userData._id === userId) e.target.submit();
+    }).catch(err => { console.log(err); });   
 }
 
 function calcTime(t){

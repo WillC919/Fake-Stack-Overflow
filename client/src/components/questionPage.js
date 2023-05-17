@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import axios from 'axios';
 import '../stylesheets/questionPage.css'
 import CreateQuestionRows from './questionRows.js'
@@ -15,43 +15,43 @@ export default function Questions({userData, pageIndex, setPageIndex, setQuestio
         await axios.get('http://localhost:8000/tags').then(res => { setTagsData(res.data); });
     }
 
-    async function sortByNewest() {
-        const sortedQuestData = await questsData.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
+    function sortByNewest() {
+        const sortedQuestData = questsData.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
         setQuestsData(sortedQuestData);
     }
     
-    async function sortByActive() {
-        await axios.get(`http://localhost:8000/sortActive`).then(res => {
-            setQuestsData(res.data)
+    function sortByActive() {
+        const data = questsData;
+        setQuestsData(null);
+        axios.post('http://localhost:8000/sortActive', { dataset: data })
+        .then(response => {
+            const sortedData = response.data;
+            setQuestsData(sortedData);
+        }).catch(error => {
+            console.error('Error sorting data:', error);
         });
     }
-    async function sortByUnanswered() {
-        console.log(questsData)
-        const response = await axios.get(`http://localhost:8000/sortUnanswered`);
-        const arr = response.data.filter(function(q){
-            if(!questsData.includes(q)) return q;
-            return;
-        })
-        setQuestsData(arr);
 
-                
+    function sortByUnanswered() {
+        const result = questsData.filter((q) =>  (q.answers.length === 0));
+        setQuestsData(result);
     }
 
-    async function filterByTag(tagId) {
-        await axios.get(`http://localhost:8000/tag/:${tagId}`).then(res => {setQuestsData(res.data);})
-    }
+    // async function filterByTag(tagId) {
+    //     await axios.get(`http://localhost:8000/tag/:${tagId}`).then(res => {setQuestsData(res.data);})
+    // }
 
 
     useEffect(() => { 
 
         if (pageIndex === 0) {setSortBy(0); reloadTags(); reloadQuestions()}
-        if (pageIndex === 5) {setSortBy(4); }
-        if (pageIndex === 6) {setSortBy(3); }
+        if (pageIndex === 5) {setSortBy(4); reloadTags();}
+        if (pageIndex === 6) {setSortBy(3); reloadTags(); reloadQuestions()}
     }, []);
 
 
     
-    return (
+    return ( questsData !== null ?
         <div>
             <table className="right" id="questionsTable" width="100%">
                 <tbody>
@@ -72,13 +72,15 @@ export default function Questions({userData, pageIndex, setPageIndex, setQuestio
                 </tbody>
             </table>
 
-            <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} setQuestsData = {setQuestsData} questIndex = {questIndex} setQuestionId={setQuestionId} tagsData={tagsData} tagId = {tagId} setSortBy = {setSortBy} questHeader ={questHeader}/>
+            <div style={{overflowY: 'scroll', height: '26rem'}}>
+                <CreateQuestionRows setPageIndex={setPageIndex} sortBy={sortBy} questsData={questsData} setQuestsData = {setQuestsData} questIndex = {questIndex} setQuestionId={setQuestionId} tagsData={tagsData} tagId = {tagId} setSortBy = {setSortBy} questHeader ={questHeader}/>
+            </div>
             
             <div className="viewBtn">
                 <div><button className="curr">Page {questIndex+1}</button></div>
                 {questIndex !== 0 && <div><button className="prev" onClick={() => setQuestIndex(questIndex-1)}>Prev</button></div>}
                 {questIndex < Math.floor((questsData.length-1)/5) && <div><button className="next" onClick={() => setQuestIndex(questIndex+1)}>Next</button></div>}
             </div>
-        </div>
+        </div> : <h1>Loading ...</h1>
     );
 }

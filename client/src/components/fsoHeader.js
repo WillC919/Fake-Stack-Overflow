@@ -1,7 +1,7 @@
 import '../stylesheets/fsoHeader.css';
 import axios from 'axios';
 
-export default function Header({userData, setUserData, setQuestsData, setPageIndex, sortBy, setSortBy}) {
+export default function Header({setQuestsData, setPageIndex, sortBy, setSortBy}) {
     return (
         <div id="header">
             <div id="banner">

@@ -24,12 +24,15 @@ export default function CreateAnswerRows({userData, a, fromProfile, setFromProfi
             id: a._id,
             userId: userData._id,
         }).then(res => {
-            if(ansData.upvotes.indexOf(userData._id) < 0 && !up){
-                setVotes(v => v + 1);
-                setUp(true);
-                setDown(false);
+            if (res.data === 'error'){
+                alert('You need to have a reputation of 50 or above to vote!');
+            }else {
+                if(ansData.upvotes.indexOf(userData._id) < 0 && !up){
+                    setVotes(v => v + 1);
+                    setUp(true);
+                    setDown(false);
+                }
             }
-            
         }).catch(err => { console.log(err); });
     } 
 
@@ -38,10 +41,14 @@ export default function CreateAnswerRows({userData, a, fromProfile, setFromProfi
             id: a._id,
             userId: userData._id,
         }).then(res => {
-            if(ansData.downvotes.indexOf(userData._id) < 0 && !down){
-                setVotes(v => v - 1);
-                setDown(true);
-                setUp(false);
+            if (res.data === 'error'){
+                alert('You need to have a reputation of 50 or above to vote!')
+            }else{
+                if(ansData.downvotes.indexOf(userData._id) < 0 && !down){
+                    setVotes(v => v - 1);
+                    setDown(true);
+                    setUp(false);
+                }
             }
         }).catch(err => { console.log(err); })
     } 

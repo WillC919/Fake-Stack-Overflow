@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useState } from 'react';
 import '../stylesheets/fsoLogin.css'
 //onSubmit={(e) => handleClick(e, displayIndex, setDisplayIndex, setUserData)}
 //The Welcome / Login Page
@@ -17,7 +16,7 @@ export default function LoginPage({displayIndex, setDisplayIndex, setUserData}) 
                 </div>
                 <div className="infoBox">
                     <h2>Register an Account</h2>
-                    <p>Don't have an account? Sign up with us so you can get notified.</p>
+                    <p>Don&apos;t have an account? Sign up with us so you can get notified.</p>
                     <div className='btn'><button id="Sign Up" onClick={() => {setDisplayIndex(2)}}>Sign Up</button></div>
                 </div>
                 <div className="infoBox">
