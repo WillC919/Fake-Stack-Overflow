@@ -61,6 +61,10 @@ app.get('/cookie', async function (req, res) {
   } else { res.send([]); }
 });
 
+
+
+
+
 app.get('/users', async function (req, res) {
   const users = await User.find().lean();
   res.send(users);
@@ -89,21 +93,44 @@ app.post('/user/delete', async function (req, res) {
       
       let questList = userData.questions;
       let ansList = userData.answers;
+      let comList = userData.comments;
 
+      //Quest and Answers relations with Deleted User update
       await Question.updateMany({ answers: { $in: ansList } }, { $pull: { answers: { $in: ansList } } });
+      await Question.updateMany({ comments: { $in: comList } }, { $pull: { comments: { $in: comList } } });
+      await Answer.updateMany({ comments: { $in: comList } }, { $pull: { comments: { $in: comList } } });
 
-      const questWithAnswers = await Question.find({ _id: { $in: questList } });
+      // Finding all questions from deleted user 
+      const questionsFromUser = await Question.find({ _id: { $in: questList } });
+
+      // Get all answers under deleted questions and marking the answers for deletion
       let ansListFromQuest = [];
-      questWithAnswers.forEach(q => { ansListFromQuest = ansListFromQuest.concat(q.answers); });
+      questionsFromUser.forEach(q => { ansListFromQuest = ansListFromQuest.concat(q.answers); });
       ansList = [...ansList, ...ansListFromQuest];
 
+      // All answers marked for deletion
+      const answersBeingDeleted = await Answer.find({ _id: { $in: ansList } });
+      
+      // Get all comments from marked answers and marked questions
+      let comListFromQuestAndAnswer = [];
+      questionsFromUser.forEach(q => { comListFromQuestAndAnswer = comListFromQuestAndAnswer.concat(q.comments); });
+      answersBeingDeleted.forEach(a => { comListFromQuestAndAnswer = comListFromQuestAndAnswer.concat(a.comments); });
+      comList = [...comList, ...comListFromQuestAndAnswer];
+
+      //User relations with Deleted User update
       await User.updateMany(
         { answers: { $in: ansList } },
         { $pull: { answers: { $in: ansList } } }
       );
-
+      await User.updateMany(
+        { comments: { $in: comList } },
+        { $pull: { comments: { $in: comList } } }
+      );
+      
+      // Record Earse
       await Answer.deleteMany({ _id: { $in: ansList } });
       await Question.deleteMany({ _id: { $in: questList } });
+      await Comment.deleteMany({ _id: { $in: comList } });
       await User.deleteOne({ _id: req.body.userId });
 
       res.send("User has been removed");
@@ -115,6 +142,7 @@ app.post('/user/delete', async function (req, res) {
     res.status(500).send("An error occurred");
   }
 });
+
 
 
 app.get('/questions', async function (req, res) {
@@ -316,6 +344,8 @@ app.post('/find', async (req, res) => {
 
 
 
+
+
 app.post('/verify', async function (req, res) {
   try {
     const result = await User.findOne({email: req.body.email});
@@ -327,7 +357,6 @@ app.post('/verify', async function (req, res) {
     res.send(false);
   }
 });
-
 app.post('/login', async function (req, res) {
   try {
     req.session.userId = (req.body.loginEmail).toLowerCase();
@@ -379,6 +408,10 @@ app.post("/logout", (req, res) => {
     });
   }
 })
+
+
+
+
 
 app.post('/postQuestion', async function (req, res) {
   try {
@@ -512,6 +545,8 @@ app.post('/deleteanswer/:aid', async function (req, res) {
   
   res.send('Removed Success');
 })
+
+
 
 app.post('/postComment', async function (req, res) {
   let commentDetail = {

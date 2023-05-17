@@ -9,6 +9,7 @@ export default function Main({userData, setUserData, pageIndex, setPageIndex, qu
                 userData = {userData} setUserData = {setUserData} 
                 pageIndex = {pageIndex} setPageIndex = {setPageIndex} 
                 setQuestsData = {setQuestsData}
+                setSortBy = {setSortBy}
             />
             <Right 
                 userData = {userData} 

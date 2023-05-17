@@ -17,7 +17,7 @@ export default function Profile({userData, setPageIndex, setQuestionId, setFromP
                 : userData.accType === 'User' && subUser === null ?
                     <User userData = {userData} setPageIndex = {setPageIndex} setQuestionId = {setQuestionId} setFromProfile = {setFromProfile} setSubUser = {setSubUser} isSubuser = {isSubuser}/>
                     : userData !== 'Admin' && userData !== 'User' ?
-                        <h1>Please login or signup</h1>
-                        :<h1> Unable to load User profile </h1>
+                        <h1 style={{marginLeft: "20px"}}> Please Login or Signup</h1>
+                        : <h1 style={{marginLeft: "20px"}}> Unable to load User profile </h1>
     );
 }

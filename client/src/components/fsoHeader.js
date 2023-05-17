@@ -31,8 +31,17 @@ function search(event, setQuestsData, setPageIndex, sortBy, setSortBy) {
         const keytags = keys.filter((str) => str.charAt(0) === '[' && str.charAt(str.length-1) === ']');
         
         setSortBy(4);
+        setPageIndex(5);
+        setSortBy(4);
+        setPageIndex(5);
         axios.post('http://localhost:8000/find', { wordKeys: keywords, tagKeys: keytags })
-        .then(res => { setSortBy(v => 4); setQuestsData(res.data); setPageIndex(5);});
+        .then(res => {
+            setQuestsData(res.data);
+            setSortBy(4);
+            setPageIndex(5);
+        });
+        setSortBy(4);
+        setPageIndex(5);
     }
 }
 

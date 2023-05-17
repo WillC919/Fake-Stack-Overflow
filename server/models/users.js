@@ -14,6 +14,7 @@ var UsersSchema = new Schema({
     
     questions: [{type: Schema.Types.ObjectId, ref: 'Questions', default: []}],
     answers: [{type: Schema.Types.ObjectId, ref: 'Answers', default: []}],
+    comments: [{type: Schema.Types.ObjectId, ref: 'Comments', default: []}],
     tags: [{type: Schema.Types.ObjectId, ref: 'Tags', default: []}],
 });
 

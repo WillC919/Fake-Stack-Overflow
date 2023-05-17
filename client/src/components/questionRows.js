@@ -2,74 +2,71 @@ import { useEffect, useState } from 'react';
 import '../stylesheets/questionRows.css';
 import axios from 'axios';
 
-export default function CreateQuestionRows({setPageIndex, sortBy, questsData, setQuestsData, questIndex, setQuestionId, tagsData, tagId, questHeader}) {
-    useEffect(() => {
-        async function fetchQuestionData(){
-            // const sortedQuestData = questsData.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
-            const sortedQuestData = await axios.get(`http://localhost:8000/questions`);
-            // JSON.stringify(sortedQuestData);
-            // const newData = JSON.parse(sortedQuestData);
-            setQuestsData(sortedQuestData.data);
-        }
+export default function CreateQuestionRows({setPageIndex, sortBy, questsData, setQuestsData, questIndex, setQuestionId, tagsData, tagId}) {
+    // useEffect(() => {
+    //     // async function fetchQuestionData(){
+    //     //     // const sortedQuestData = questsData.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
+    //     //     const sortedQuestData = await axios.get(`http://localhost:8000/questions`);
+    //     //     // JSON.stringify(sortedQuestData);
+    //     //     // const newData = JSON.parse(sortedQuestData);
+    //     //     setQuestsData(sortedQuestData.data);
+    //     // }
 
-        function sortByNewest() {
-            const sortedQuestData = questsData.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
-            setQuestsData(sortedQuestData);
-        }
+    //     function sortByNewest() {
+    //         const sortedQuestData = questsData.sort(function(a,b){return new Date(b.ask_date_time).getTime() - new Date(a.ask_date_time).getTime()});
+    //         setQuestsData(sortedQuestData);
+    //     }
         
-        async function sortByActive() {
-            await axios.get(`http://localhost:8000/sortActive`).then(res => {
-                setQuestsData(res.data)
-            });
-        }
-        async function sortByUnanswered() {
-            let arr = []
-            if (questHeader === 'Search'){
-                arr = questsData.filter(q => !(q.answers.length === 0));
-            } else {
-                await axios.get(`http://localhost:8000/sortUnanswered`).then(res => {
-                    arr = res.data.filter(q => !questsData.includes(q))
-                });
-            }
-            setQuestsData(arr)            
-        }
+    //     async function sortByActive() {
+    //         await axios.get(`http://localhost:8000/sortActive`).then(res => {
+    //             setQuestsData(res.data)
+    //         });
+    //     }
+    //     async function sortByUnanswered() {
+    //         console.log(questsData)
+    //         await axios.get(`http://localhost:8000/sortUnanswered`).then(res => {
+    //             const arr = res.data.filter(q => !questsData.includes(q))
+    //             setQuestsData(arr);
+    //         });
+                    
+    //     }
 
-        async function filterByTag(tagId) {
-            await axios.get(`http://localhost:8000/tag/:${tagId}`).then(res => {setQuestsData(res.data);})
-        }
+    //     async function filterByTag(tagId) {
+    //         await axios.get(`http://localhost:8000/tag/:${tagId}`).then(res => {setQuestsData(res.data);})
+    //     }
 
         
         
-        if (sortBy === 0) fetchQuestionData();
-        if (sortBy === 1) sortByActive();
-        if (sortBy === 2) sortByUnanswered();
-        if (sortBy === 3) filterByTag(tagId);
-        if (sortBy === 4) sortByNewest();
+    //     // if (sortBy === 0) fetchQuestionData();
+    //     if (sortBy === 1) sortByActive();
+    //     if (sortBy === 2) sortByUnanswered();
+    //     if (sortBy === 3) filterByTag(tagId);
+    //     if (sortBy === 4) sortByNewest();
         
-        // function search(event, setQuestsData, setPageIndex) {
-        //     if (event.key === 'Enter') {
-        //         const set = event.target.value;
-        //         let keys = "";
-        //         for (let i = 0; i < set.length; i++) {
-        //             if (set.charAt(i) === "[") {
-        //                 keys += " [";
-        //             } else if (set.charAt(i) === "]") {
-        //                 keys += "] ";
-        //             } else {
-        //                 keys += set.charAt(i);
-        //             }
-        //         }
+    //     // function search(event, setQuestsData, setPageIndex) {
+    //     //     if (event.key === 'Enter') {
+    //     //         const set = event.target.value;
+    //     //         let keys = "";
+    //     //         for (let i = 0; i < set.length; i++) {
+    //     //             if (set.charAt(i) === "[") {
+    //     //                 keys += " [";
+    //     //             } else if (set.charAt(i) === "]") {
+    //     //                 keys += "] ";
+    //     //             } else {
+    //     //                 keys += set.charAt(i);
+    //     //             }
+    //     //         }
         
-        //         keys = keys.split(' ');
-        //         const keywords = keys.filter((str) => str !== '' && str.charAt(0) !== '[' && str.charAt(str.length-1) !== ']');
-        //         const keytags = keys.filter((str) => str.charAt(0) === '[' && str.charAt(str.length-1) === ']');
+    //     //         keys = keys.split(' ');
+    //     //         const keywords = keys.filter((str) => str !== '' && str.charAt(0) !== '[' && str.charAt(str.length-1) !== ']');
+    //     //         const keytags = keys.filter((str) => str.charAt(0) === '[' && str.charAt(str.length-1) === ']');
         
-        //         axios.post('http://localhost:8000/find', { wordKeys: keywords, tagKeys: keytags }).then(res => {
-        //             setQuestsData(res.data); setPageIndex(5);
-        //         });
-        //     }
-        // }
-    })
+    //     //         axios.post('http://localhost:8000/find', { wordKeys: keywords, tagKeys: keytags }).then(res => {
+    //     //             setQuestsData(res.data); setPageIndex(5);
+    //     //         });
+    //     //     }
+    //     // }
+    // }, [questsData])
 
     return (
         <table id="questionRows">
