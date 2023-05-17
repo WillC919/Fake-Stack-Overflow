@@ -46,7 +46,7 @@ export default function TagEdit({userData, setPageIndex, questsData, setQuestHea
                 <tbody>
                     <tr height="100px">
                         <td width="25%"><p id="numOfTags">{tagsData.length + ' Tags'}</p></td>
-                        <td width="50%"><p id="tagsHeader"> Tags You've Created </p></td>
+                        <td width="50%"><p id="tagsHeader"> Tags You&apos;ve Created </p></td>
                         <td id="showAskQuestionBtn"><button className="askQuestion" id="askQuestion">Ask Question</button></td>
                     </tr>
                 </tbody>
@@ -95,6 +95,7 @@ function deleteTag(tid, userData, questsData, setPageIndex) {
     }
     try{
         axios.post(`http://localhost:8000/deletetag/:${tid}`).then( res => {
+            console.log(res)
             // setTagsData()
             alert('successful');
             setPageIndex(7)

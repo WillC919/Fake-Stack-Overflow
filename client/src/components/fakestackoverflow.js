@@ -1,7 +1,6 @@
 import Home from './fsoHome.js'
 import Login from './fsoLogin.js'
 import { useState, useEffect } from 'react';
-import axios from 'axios';
 
 export default function FakeStackOverflow() {
   const [userData, setUserData] = useState([]);

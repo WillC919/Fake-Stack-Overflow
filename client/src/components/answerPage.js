@@ -6,7 +6,7 @@ import CreateCommentRows from './commentRows';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-export default function Answers({userData, setPageIndex, questionId, fromProfile, setFromProfile, setAnsId}) {
+export default function Answers({userData, setPageIndex, questionId, tagsData, fromProfile, setFromProfile, setAnsId}) {
     const [question, setQuestion] = useState(null);
     const [answerList, setAnswerList] = useState([]);
     const [answerIndex, setAnswerIndex] = useState(0);
@@ -54,12 +54,15 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
             id: questionId,
             userId: userData._id,
         }).then(res => {
-            if(question.upvotes.indexOf(userData._id) < 0 && !up){
-                setQvotes(v => v + 1);
-                setUp(true);
-                setDown(false);
+            if (res.data === 'error') {
+                alert('You need to have a reputation of 50 or above to vote!')
+            }else{
+                if(question.upvotes.indexOf(userData._id) < 0 && !up){
+                    setQvotes(v => v + 1);
+                    setUp(true);
+                    setDown(false);
+                }
             }
-            
         }).catch(err => { console.log(err); });
     } 
 
@@ -68,10 +71,14 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
             id: questionId,
             userId: userData._id,
         }).then(res => {
-            if(question.downvotes.indexOf(userData._id) < 0 && !down){
-                setQvotes(v => v - 1);
-                setDown(true);
-                setUp(false);
+            if (res.data === 'error') {
+                alert('You need to have a reputation of 50 or above to vote!')
+            }else{
+                if(question.downvotes.indexOf(userData._id) < 0 && !down){
+                    setQvotes(v => v - 1);
+                    setDown(true);
+                    setUp(false);
+                }
             }
         }).catch(err => { console.log(err); })
     } 
@@ -94,7 +101,12 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
                     </tr>
                     <tr id="questHeaderBottom">
                         <td id='numOfViews'>{question.views + ' views'}</td>
-                        <td id='questText'><Format text={question.text}/></td>
+                        <td id='questText'>
+                            <div>
+                                <Format text={question.text}/>
+                                {question.tags.map((idTag) => <button className='tagsPin' key={idTag}>{matchTagIDWithName(idTag, tagsData)}</button>)}
+                            </div>
+                        </td>
                         <td id='askedBy'><p>{question.asked_by}</p>{' asked ' + calcTime(new Date(question.ask_date_time))}</td>
                     </tr>
                     <tr>
@@ -103,6 +115,7 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
                 </tbody>
             </table>
             <table id='answerRows' width="100%">
+                <div style={{overflowY: 'scroll', minHeight: '0px', maxHeight: '25rem'}}>
                 <tbody>
                     {answerList.slice(answerIndex*5, answerIndex*5+5).map((a) => <>
                         <CreateAnswerRows userData={userData} a = {a} fromProfile = {fromProfile} setFromProfile = {setFromProfile} setPageIndex = {setPageIndex} setAnsId = {setAnsId}/>
@@ -114,6 +127,7 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
                         </tr>
                     </>)}
                 </tbody>
+                </div>
             </table>
             <div className="viewBtn">
                 <div><button className="curr">Page {answerIndex+1}</button></div>
@@ -139,6 +153,12 @@ export default function Answers({userData, setPageIndex, questionId, fromProfile
             </table>
         </div>
     )
+}
+function matchTagIDWithName(tagId, tagsData) {
+    for (let i = 0; i < tagsData.length; i++) {
+        if (tagsData[i]._id === tagId) return tagsData[i].name;
+    }
+    return "NULL";
 }
 
 function Format({text}) {

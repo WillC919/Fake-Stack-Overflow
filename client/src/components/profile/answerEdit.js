@@ -48,6 +48,7 @@ function handleClick(event, userData, setPageIndex, questionId, ansId, submitTyp
     if (submitType === 'delete') {
         axios.post(`http://localhost:8000/deleteanswer/:${ansId}`).then(res => {
             // setQuestsData(questsData.filter(q => q !== questionId))
+            console.log(res)
             setPageIndex(3);
         })
         .catch(err => { console.log(err); })

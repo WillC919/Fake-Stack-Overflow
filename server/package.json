@@ -18,5 +18,9 @@
     "mysql": "*",
     "node": "^20.1.0",
     "nodemon": "^2.0.22"
+  },
+  "devDependencies": {
+    "eslint": "^8.40.0",
+    "eslint-plugin-react": "^7.32.2"
   }
 }

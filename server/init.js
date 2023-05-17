@@ -1,4 +1,4 @@
-//Setup database with initial test data.
+// Setup database with initial test data.
 // Include an admin user.
 // Script should take admin credentials as arguments as described in the requirements doc.
 // mongodb://127.0.0.1:27017/fake_so
@@ -158,7 +158,7 @@ const init = async () => {
 
 
     let ua = await createUser('admin@gmail.com', 'Bob', '12345678', false, 'Admin', false, false, false);
-    let u1 = await createUser('t1@gmail.com', 't1', '12345678', 0, false, [q1, q2, q3], [a1, a2, a3, a4], [c1, c2, c3]);
+    let u1 = await createUser('t1@gmail.com', 't1-Delete', '12345678', 0, false, [q1, q2, q3], [a1, a2, a3, a4], [c1, c2, c3]);
     let u2 = await createUser('t2@gmail.com', 't2', '12345678', 50, false, [q4, q7, q8], [a5, a6 ,a7, a8, a13], [c4, c7]);
     let u3 = await createUser('t3@gmail.com', 't3', '12345678', 25, false, [q5, q9], [a9, a10, a11, a12, a14, a15, a16], [c5, c6, c8]);
     let u4 = await createUser('t4@gmail.com', 't4', '12345678', -5, false, [q6], [a17, a18, a19, a20], [c9]);
